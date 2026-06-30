@@ -10,6 +10,8 @@ import 'typing_indicator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers/ai_provider.dart';
+import '../../../../core/models/ai_message.dart';
+import '../../../../core/providers/ai_chat_provider.dart';
 
 class AIConversation extends ConsumerWidget {
   const AIConversation({super.key, this.isTyping = true});
@@ -19,6 +21,7 @@ class AIConversation extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final aiState = ref.watch(aiProvider);
+    final messages = ref.watch(aiChatProvider);
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -99,28 +102,17 @@ class AIConversation extends ConsumerWidget {
             //------------------------------------
             // Conversation
             //------------------------------------
-            const AIMessageBubble(
-              message:
-                  'Hello Abang 👋\n\n'
-                  'I am JourneyMATE AI.\n'
-                  'How can I help you plan your next journey today?',
-              timestamp: '09:30 AM',
-            ),
-
-            const AIMessageBubble(
-              isUser: true,
-              message:
-                  'Please create a 3 Days 2 Nights itinerary for Kelantan with a budget below RM800.',
-              timestamp: '09:31 AM',
-            ),
-
-            AIMessageBubble(
-              message:
-                  aiState.response?.message ??
-                  'Certainly.\n\n'
-                      'I am analysing your destination, budget, accommodation, transport and attractions.\n\n'
-                      'Your personalised itinerary will be ready shortly.',
-              timestamp: '09:31 AM',
+            ...messages.map(
+              (message) => Padding(
+                padding: const EdgeInsets.only(bottom: JMSpacing.md),
+                child: AIMessageBubble(
+                  message: message.message,
+                  isUser: message.isUser,
+                  timestamp:
+                      '${message.timestamp.hour.toString().padLeft(2, '0')}:'
+                      '${message.timestamp.minute.toString().padLeft(2, '0')}',
+                ),
+              ),
             ),
 
             //------------------------------------

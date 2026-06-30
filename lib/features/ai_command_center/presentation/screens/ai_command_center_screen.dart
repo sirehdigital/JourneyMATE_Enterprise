@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../core/design/colors/jm_colors.dart';
 import '../../../../core/design/spacing/jm_spacing.dart';
 import '../../../../core/design/typography/jm_typography.dart';
+import '../../../../core/providers/ai_chat_provider.dart';
+import '../../../../core/providers/ai_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../widgets/ai_chat_input.dart';
 import '../widgets/ai_conversation.dart';
@@ -14,10 +17,17 @@ import '../widgets/ai_recent_activity.dart';
 import '../widgets/ai_status_card.dart';
 import '../widgets/ai_task_queue.dart';
 import '../widgets/recommendation_list.dart';
+import 'ai_conversation_screen.dart';
 
-class AICommandCenterScreen extends StatelessWidget {
+class AICommandCenterScreen extends ConsumerStatefulWidget {
   const AICommandCenterScreen({super.key});
 
+  @override
+  ConsumerState<AICommandCenterScreen> createState() =>
+      _AICommandCenterScreenState();
+}
+
+class _AICommandCenterScreenState extends ConsumerState<AICommandCenterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,13 +102,56 @@ class AICommandCenterScreen extends StatelessWidget {
               //---------------------------------------------------
               // AI Conversation
               //---------------------------------------------------
-              const AIConversation(),
+              Container(
+                padding: const EdgeInsets.all(JMSpacing.lg),
+                decoration: BoxDecoration(
+                  color: JMColors.card,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: JMColors.border),
+                ),
+                child: Column(
+                  children: [
+                    const Icon(
+                      Icons.smart_toy_rounded,
+                      size: 56,
+                      color: JMColors.ai,
+                    ),
 
-              const SizedBox(height: JMSpacing.lg),
+                    const SizedBox(height: JMSpacing.md),
 
-              const AIChatInput(),
+                    const Text(
+                      'JourneyMATE AI Assistant',
+                      style: JMTypography.titleMedium,
+                    ),
 
-              const SizedBox(height: JMSpacing.section),
+                    const SizedBox(height: JMSpacing.sm),
+
+                    const Text(
+                      'Start a live conversation with JourneyMATE AI.',
+                      textAlign: TextAlign.center,
+                      style: JMTypography.bodyMedium,
+                    ),
+
+                    const SizedBox(height: JMSpacing.lg),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const AIConversationScreen(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.chat_rounded),
+                        label: const Text('Open AI Assistant'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
 
               //---------------------------------------------------
               // Recommendation
