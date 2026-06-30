@@ -25,18 +25,15 @@ class InsightChartPlaceholder extends StatelessWidget {
       decoration: BoxDecoration(
         color: JMColors.card,
         borderRadius: JMRadius.radiusLG,
-        border: Border.all(
-          color: JMColors.border,
-        ),
+        border: Border.all(color: JMColors.border),
         boxShadow: JMShadows.card,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          //------------------------------------------
+          //--------------------------------------------------
           // Header
-          //------------------------------------------
-
+          //--------------------------------------------------
           Row(
             children: [
               Container(
@@ -52,62 +49,111 @@ class InsightChartPlaceholder extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: JMSpacing.md),
-              Expanded(
-                child: Text(
-                  title,
-                  style: JMTypography.titleLarge,
-                ),
-              ),
+              Expanded(child: Text(title, style: JMTypography.titleLarge)),
             ],
           ),
 
           const SizedBox(height: JMSpacing.xxl),
 
-          //------------------------------------------
-          // Chart Area
-          //------------------------------------------
-
+          //--------------------------------------------------
+          // Placeholder Chart
+          //--------------------------------------------------
           Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final chartHeight = constraints.maxHeight;
-
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: const [
-                    _ChartBar(
-                      value: .55,
-                      color: JMColors.primary,
-                    ),
-                    SizedBox(width: JMSpacing.md),
-                    _ChartBar(
-                      value: .82,
-                      color: JMColors.flight,
-                    ),
-                    SizedBox(width: JMSpacing.md),
-                    _ChartBar(
-                      value: .67,
-                      color: JMColors.hotel,
-                    ),
-                    SizedBox(width: JMSpacing.md),
-                    _ChartBar(
-                      value: .91,
-                      color: JMColors.wallet,
-                    ),
-                    SizedBox(width: JMSpacing.md),
-                    _ChartBar(
-                      value: .73,
-                      color: JMColors.secondary,
-                    ),
-                    SizedBox(width: JMSpacing.md),
-                    _ChartBar(
-                      value: .96,
-                      color: JMColors.ai,
-                    ),
-                  ],
-                );
-              },
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: const [
+                Expanded(
+                  child: _ChartBar(
+                    value: 0.45,
+                    color: JMColors.primary,
+                    label: 'Mon',
+                  ),
+                ),
+                SizedBox(width: JMSpacing.sm),
+                Expanded(
+                  child: _ChartBar(
+                    value: 0.70,
+                    color: JMColors.flight,
+                    label: 'Tue',
+                  ),
+                ),
+                SizedBox(width: JMSpacing.sm),
+                Expanded(
+                  child: _ChartBar(
+                    value: 0.60,
+                    color: JMColors.hotel,
+                    label: 'Wed',
+                  ),
+                ),
+                SizedBox(width: JMSpacing.sm),
+                Expanded(
+                  child: _ChartBar(
+                    value: 0.92,
+                    color: JMColors.wallet,
+                    label: 'Thu',
+                  ),
+                ),
+                SizedBox(width: JMSpacing.sm),
+                Expanded(
+                  child: _ChartBar(
+                    value: 0.75,
+                    color: JMColors.secondary,
+                    label: 'Fri',
+                  ),
+                ),
+                SizedBox(width: JMSpacing.sm),
+                Expanded(
+                  child: _ChartBar(
+                    value: 1.0,
+                    color: JMColors.ai,
+                    label: 'Sat',
+                  ),
+                ),
+              ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
 
-         
+class _ChartBar extends StatelessWidget {
+  const _ChartBar({
+    required this.value,
+    required this.color,
+    required this.label,
+  });
+
+  final double value;
+  final Color color;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final barHeight = constraints.maxHeight * value;
+
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 400),
+              width: 22,
+              height: barHeight,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(8),
+                ),
+              ),
+            ),
+            const SizedBox(height: JMSpacing.sm),
+            Text(label, style: JMTypography.labelSmall),
+          ],
+        );
+      },
+    );
+  }
+}

@@ -24,7 +24,6 @@ class AIRecommendationCard extends StatelessWidget {
   final String weather;
   final String budget;
   final int aiScore;
-
   final VoidCallback? onViewDetails;
 
   @override
@@ -41,16 +40,16 @@ class AIRecommendationCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          //------------------------------------------
+          //--------------------------------------------------
           // Header
-          //------------------------------------------
+          //--------------------------------------------------
           Row(
             children: [
               Container(
                 width: 54,
                 height: 54,
                 decoration: BoxDecoration(
-                  color: JMColors.ai.withOpacity(.10),
+                  color: JMColors.ai.withValues(alpha: 0.10),
                   borderRadius: JMRadius.radiusLG,
                 ),
                 child: const Icon(
@@ -84,9 +83,9 @@ class AIRecommendationCard extends StatelessWidget {
 
           const SizedBox(height: JMSpacing.xxl),
 
-          //------------------------------------------
+          //--------------------------------------------------
           // Recommendation
-          //------------------------------------------
+          //--------------------------------------------------
           const Text('Recommended Plan', style: JMTypography.titleMedium),
 
           const SizedBox(height: JMSpacing.lg),
@@ -101,7 +100,9 @@ class AIRecommendationCard extends StatelessWidget {
                   color: JMColors.flight,
                 ),
               ),
+
               const SizedBox(width: JMSpacing.md),
+
               Expanded(
                 child: _RecommendationTile(
                   icon: Icons.hotel_rounded,
@@ -125,7 +126,9 @@ class AIRecommendationCard extends StatelessWidget {
                   color: JMColors.warning,
                 ),
               ),
+
               const SizedBox(width: JMSpacing.md),
+
               Expanded(
                 child: _RecommendationTile(
                   icon: Icons.account_balance_wallet_rounded,
@@ -176,14 +179,16 @@ class _AIScoreBadge extends StatelessWidget {
         vertical: JMSpacing.sm,
       ),
       decoration: BoxDecoration(
-        color: JMColors.success.withOpacity(.10),
+        color: JMColors.success.withValues(alpha: 0.10),
         borderRadius: JMRadius.radiusPill,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(Icons.star_rounded, color: JMColors.success, size: 18),
+
           const SizedBox(width: JMSpacing.sm),
+
           Text(
             '$score%',
             style: const TextStyle(
@@ -209,7 +214,6 @@ class _RecommendationTile extends StatelessWidget {
   final String title;
   final String value;
   final Color color;
-
   @override
   Widget build(BuildContext context) {
     return Container(

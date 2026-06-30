@@ -104,7 +104,7 @@ class _QuickActionCard extends StatelessWidget {
                 width: 52,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: item.color.withOpacity(.10),
+                  color: item.color.withValues(alpha: 0.10),
                   borderRadius: JMRadius.radiusMD,
                 ),
                 child: Icon(item.icon, color: item.color, size: 28),

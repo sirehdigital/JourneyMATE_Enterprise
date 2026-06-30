@@ -5,6 +5,7 @@ import '../../../../core/design/radius/jm_radius.dart';
 import '../../../../core/design/shadows/jm_shadows.dart';
 import '../../../../core/design/spacing/jm_spacing.dart';
 import '../../../../core/design/typography/jm_typography.dart';
+
 import 'task_card.dart';
 import 'task_progress.dart';
 
@@ -35,12 +36,14 @@ class AITaskQueue extends StatelessWidget {
                   width: 52,
                   height: 52,
                   decoration: BoxDecoration(
-                    color: JMColors.ai.withOpacity(.10),
+                    color: JMColors.ai.withValues(alpha: 0.10),
                     borderRadius: JMRadius.radiusMD,
                   ),
                   child: const Icon(Icons.queue_rounded, color: JMColors.ai),
                 ),
+
                 const SizedBox(width: JMSpacing.lg),
+
                 const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,36 +62,27 @@ class AITaskQueue extends StatelessWidget {
 
             const SizedBox(height: JMSpacing.xxl),
 
-            //----------------------------------
-            // Running
-            //----------------------------------
             const TaskCard(
               title: 'Generate Kelantan Itinerary',
               description: 'Creating personalised 3 Days 2 Nights travel plan.',
               status: AITaskStatus.running,
-              progress: .72,
+              progress: 0.72,
               eta: '14 sec',
               icon: Icons.route_rounded,
               iconColor: JMColors.primary,
             ),
 
-            //----------------------------------
-            // Pending
-            //----------------------------------
             const TaskCard(
               title: 'Compare Hotel Prices',
               description:
                   'Searching 42 partner hotels across booking providers.',
               status: AITaskStatus.pending,
-              progress: .18,
+              progress: 0.18,
               eta: 'Waiting',
               icon: Icons.hotel_rounded,
               iconColor: JMColors.hotel,
             ),
 
-            //----------------------------------
-            // Completed
-            //----------------------------------
             const TaskCard(
               title: 'Flight Analysis',
               description: 'Best airline and fare successfully identified.',
@@ -99,14 +93,11 @@ class AITaskQueue extends StatelessWidget {
               iconColor: JMColors.success,
             ),
 
-            //----------------------------------
-            // Failed
-            //----------------------------------
             const TaskCard(
               title: 'Weather Synchronisation',
               description: 'Weather provider timeout. Retry required.',
               status: AITaskStatus.failed,
-              progress: .45,
+              progress: 0.45,
               eta: 'Retry',
               icon: Icons.cloud_off_rounded,
               iconColor: JMColors.error,

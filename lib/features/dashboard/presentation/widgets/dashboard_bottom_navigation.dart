@@ -1,15 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/design/colors/jm_colors.dart';
 
 class DashboardBottomNavigation extends StatelessWidget {
-  const DashboardBottomNavigation({super.key});
+  const DashboardBottomNavigation({super.key, this.selectedIndex = 0});
+
+  final int selectedIndex;
 
   @override
   Widget build(BuildContext context) {
     return NavigationBar(
-      selectedIndex: 0,
+      selectedIndex: selectedIndex,
       backgroundColor: Colors.white,
+      indicatorColor: JMColors.primary.withValues(alpha: .15),
+
+      onDestinationSelected: (index) {
+        switch (index) {
+          case 0:
+            context.go('/dashboard');
+            break;
+
+          case 1:
+            // TODO: Explore
+            break;
+
+          case 2:
+            // TODO: Trips
+            break;
+
+          case 3:
+            context.go('/ai');
+            break;
+
+          case 4:
+            // TODO: Profile
+            break;
+        }
+      },
 
       destinations: const [
         NavigationDestination(
@@ -42,8 +70,6 @@ class DashboardBottomNavigation extends StatelessWidget {
           label: 'Profile',
         ),
       ],
-
-      indicatorColor: JMColors.primary.withValues(alpha: .15),
     );
   }
 }

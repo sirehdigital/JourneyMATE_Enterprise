@@ -1,27 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/design/colors/jm_colors.dart';
 import '../../../../core/design/radius/jm_radius.dart';
 import '../../../../core/design/shadows/jm_shadows.dart';
 import '../../../../core/design/spacing/jm_spacing.dart';
 import '../../../../core/design/typography/jm_typography.dart';
+import '../../../../core/providers/ai_provider.dart';
 
-class AIStatusCard extends StatelessWidget {
-  const AIStatusCard({
-    super.key,
-    this.isOnline = true,
-    this.confidence = 98,
-    this.responseTime = '0.24 s',
-    this.lastSync = 'Just now',
-  });
-
-  final bool isOnline;
-  final int confidence;
-  final String responseTime;
-  final String lastSync;
+class AIStatusCard extends ConsumerWidget {
+  const AIStatusCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ai = ref.watch(aiProvider);
+
+    final (statusColor, statusIcon) = switch (ai.status) {
+      AIStatus.ready => (JMColors.success, Icons.check_circle_rounded),
+      AIStatus.thinking => (JMColors.warning, Icons.psychology_rounded),
+      AIStatus.planning => (JMColors.primary, Icons.route_rounded),
+      AIStatus.completed => (JMColors.ai, Icons.auto_awesome_rounded),
+      AIStatus.error => (JMColors.error, Icons.error_rounded),
+    };
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(JMSpacing.cardPadding),
@@ -34,22 +35,19 @@ class AIStatusCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          //------------------------------------
+          //--------------------------------------------------------
           // Header
-          //------------------------------------
+          //--------------------------------------------------------
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(JMSpacing.md),
+                width: 56,
+                height: 56,
                 decoration: BoxDecoration(
-                  color: JMColors.primary.withOpacity(.08),
-                  borderRadius: JMRadius.radiusMD,
+                  color: statusColor.withValues(alpha: 0.12),
+                  borderRadius: JMRadius.radiusLG,
                 ),
-                child: const Icon(
-                  Icons.memory_rounded,
-                  color: JMColors.primary,
-                  size: 26,
-                ),
+                child: Icon(statusIcon, color: statusColor),
               ),
 
               const SizedBox(width: JMSpacing.lg),
@@ -59,148 +57,82 @@ class AIStatusCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('AI Status', style: JMTypography.titleLarge),
+
                     const SizedBox(height: JMSpacing.xs),
-                    Text(
-                      isOnline
-                          ? 'JourneyMATE AI is operational'
-                          : 'JourneyMATE AI is offline',
-                      style: JMTypography.bodySmall,
-                    ),
+
+                    Text(ai.message, style: JMTypography.bodyMedium),
                   ],
                 ),
               ),
-
-              _StatusBadge(isOnline: isOnline),
             ],
           ),
 
           const SizedBox(height: JMSpacing.xxl),
 
-          //------------------------------------
-          // Metrics
-          //------------------------------------
+          //--------------------------------------------------------
+          // Footer
+          //--------------------------------------------------------
           Row(
             children: [
-              Expanded(
-                child: _MetricTile(
-                  icon: Icons.psychology_alt_rounded,
-                  title: 'Confidence',
-                  value: '$confidence%',
-                  color: JMColors.ai,
+              Icon(Icons.circle, size: 12, color: statusColor),
+
+              const SizedBox(width: JMSpacing.sm),
+
+              Text(
+                ai.status.name.toUpperCase(),
+                style: JMTypography.labelMedium.copyWith(
+                  color: statusColor,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(width: JMSpacing.lg),
-              Expanded(
-                child: _MetricTile(
-                  icon: Icons.speed_rounded,
-                  title: 'Response',
-                  value: responseTime,
-                  color: JMColors.info,
-                ),
-              ),
+
+              const Spacer(),
+
+              Text(ai.currentModel, style: JMTypography.bodySmall),
             ],
           ),
 
           const SizedBox(height: JMSpacing.lg),
 
-          Row(
+          LinearProgressIndicator(
+            value: ai.loading ? null : 1,
+            minHeight: 6,
+            borderRadius: JMRadius.radiusPill,
+            backgroundColor: JMColors.border,
+            color: statusColor,
+          ),
+
+          const SizedBox(height: JMSpacing.xxl),
+
+          //--------------------------------------------------------
+          // Demo Controls
+          //--------------------------------------------------------
+          Wrap(
+            spacing: JMSpacing.sm,
+            runSpacing: JMSpacing.sm,
             children: [
-              Expanded(
-                child: _MetricTile(
-                  icon: Icons.sync_rounded,
-                  title: 'Last Sync',
-                  value: lastSync,
-                  color: JMColors.success,
-                ),
+              FilledButton(
+                onPressed: () => ref.read(aiProvider.notifier).setReady(),
+                child: const Text('Ready'),
               ),
-              const SizedBox(width: JMSpacing.lg),
-              const Expanded(
-                child: _MetricTile(
-                  icon: Icons.cloud_done_rounded,
-                  title: 'Server',
-                  value: 'Healthy',
-                  color: JMColors.success,
-                ),
+              FilledButton(
+                onPressed: () => ref.read(aiProvider.notifier).setThinking(),
+                child: const Text('Thinking'),
+              ),
+              FilledButton(
+                onPressed: () => ref.read(aiProvider.notifier).setPlanning(),
+                child: const Text('Planning'),
+              ),
+              FilledButton(
+                onPressed: () => ref.read(aiProvider.notifier).setCompleted(),
+                child: const Text('Completed'),
+              ),
+              FilledButton(
+                onPressed: () => ref.read(aiProvider.notifier).setError(),
+                child: const Text('Error'),
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatusBadge extends StatelessWidget {
-  const _StatusBadge({required this.isOnline});
-
-  final bool isOnline;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: JMSpacing.md,
-        vertical: JMSpacing.sm,
-      ),
-      decoration: BoxDecoration(
-        color: isOnline
-            ? JMColors.success.withOpacity(.10)
-            : JMColors.error.withOpacity(.10),
-        borderRadius: JMRadius.radiusPill,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.circle,
-            size: 10,
-            color: isOnline ? JMColors.success : JMColors.error,
-          ),
-          const SizedBox(width: JMSpacing.sm),
-          Text(
-            isOnline ? 'ONLINE' : 'OFFLINE',
-            style: TextStyle(
-              color: isOnline ? JMColors.success : JMColors.error,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MetricTile extends StatelessWidget {
-  const _MetricTile({
-    required this.icon,
-    required this.title,
-    required this.value,
-    required this.color,
-  });
-
-  final IconData icon;
-  final String title;
-  final String value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(JMSpacing.lg),
-      decoration: BoxDecoration(
-        color: JMColors.background,
-        borderRadius: JMRadius.radiusMD,
-        border: Border.all(color: JMColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: color, size: 22),
-          const SizedBox(height: JMSpacing.md),
-          Text(title, style: JMTypography.labelMedium),
-          const SizedBox(height: JMSpacing.xs),
-          Text(value, style: JMTypography.titleMedium),
         ],
       ),
     );

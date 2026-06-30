@@ -130,7 +130,7 @@ class _ActionButton extends StatelessWidget {
         width: 48,
         height: 48,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.08),
+          color: color.withValues(alpha: 0.08),
           borderRadius: JMRadius.radiusLG,
         ),
         child: Material(

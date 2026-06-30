@@ -5,11 +5,10 @@ import '../../../../core/design/radius/jm_radius.dart';
 import '../../../../core/design/shadows/jm_shadows.dart';
 import '../../../../core/design/spacing/jm_spacing.dart';
 import '../../../../core/design/typography/jm_typography.dart';
-import 'notification_badge.dart';
-import 'notification_tile.dart';
+import 'ai_agent_message.dart';
 
-class AINotificationFeed extends StatelessWidget {
-  const AINotificationFeed({super.key});
+class AIAgentChatPanel extends StatelessWidget {
+  const AIAgentChatPanel({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -37,10 +36,7 @@ class AINotificationFeed extends StatelessWidget {
                   color: JMColors.ai.withOpacity(.10),
                   borderRadius: JMRadius.radiusMD,
                 ),
-                child: const Icon(
-                  Icons.notifications_active_rounded,
-                  color: JMColors.ai,
-                ),
+                child: const Icon(Icons.forum_rounded, color: JMColors.ai),
               ),
 
               const SizedBox(width: JMSpacing.lg),
@@ -50,12 +46,12 @@ class AINotificationFeed extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'AI Notification Feed',
+                      'Multi-Agent Conversation',
                       style: JMTypography.titleLarge,
                     ),
                     SizedBox(height: JMSpacing.xs),
                     Text(
-                      'Real-time AI events & travel alerts',
+                      'Live collaboration between AI agents',
                       style: JMTypography.bodySmall,
                     ),
                   ],
@@ -64,67 +60,53 @@ class AINotificationFeed extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: JMSpacing.xxl),
+          const SizedBox(height: JMSpacing.xxxl),
 
           //--------------------------------------------------
-          // Notifications
+          // AI Messages
           //--------------------------------------------------
-          const NotificationTile(
-            title: 'New AI Recommendation',
+          const AIAgentMessage(
+            agentName: 'Master AI',
             message:
-                'JourneyMATE AI found a better itinerary with RM120 savings.',
-            time: 'Just now',
+                'All travel agents are online. Optimizing itinerary based on your preferences.',
             icon: Icons.auto_awesome_rounded,
-            iconColor: JMColors.ai,
-            priority: NotificationPriority.high,
+            agentColor: JMColors.ai,
           ),
 
-          const SizedBox(height: JMSpacing.lg),
-
-          const NotificationTile(
-            title: 'Flight Price Dropped',
-            message: 'Airfare to Kota Bharu decreased by RM38.',
-            time: '5 minutes ago',
+          const AIAgentMessage(
+            agentName: 'Flight Agent',
+            message:
+                'A cheaper flight has been detected. Estimated savings: RM120.',
             icon: Icons.flight_takeoff_rounded,
-            iconColor: JMColors.flight,
-            priority: NotificationPriority.medium,
+            agentColor: JMColors.flight,
+            timestamp: '1 min ago',
           ),
 
-          const SizedBox(height: JMSpacing.lg),
-
-          const NotificationTile(
-            title: 'Hotel Promotion',
+          const AIAgentMessage(
+            agentName: 'Hotel Agent',
             message:
-                'Partner hotel offers 25% discount for your selected dates.',
-            time: '18 minutes ago',
+                'Recommended hotel availability has been confirmed for your travel dates.',
             icon: Icons.hotel_rounded,
-            iconColor: JMColors.hotel,
-            priority: NotificationPriority.low,
-            isRead: true,
+            agentColor: JMColors.hotel,
+            timestamp: '2 min ago',
           ),
 
-          const SizedBox(height: JMSpacing.lg),
-
-          const NotificationTile(
-            title: 'Weather Advisory',
+          const AIAgentMessage(
+            agentName: 'Weather AI',
             message:
-                'Heavy rain is forecast tomorrow afternoon. Consider adjusting your itinerary.',
-            time: '30 minutes ago',
-            icon: Icons.thunderstorm_rounded,
-            iconColor: JMColors.warning,
-            priority: NotificationPriority.high,
+                'Weather forecast indicates sunny conditions throughout most of your trip.',
+            icon: Icons.sunny,
+            agentColor: JMColors.warning,
+            timestamp: '3 min ago',
           ),
 
-          const SizedBox(height: JMSpacing.lg),
-
-          const NotificationTile(
-            title: 'Emergency Advisory',
+          const AIAgentMessage(
+            agentName: 'Wallet AI',
             message:
-                'Local authorities have issued a traffic advisory near your destination.',
-            time: 'Yesterday',
-            icon: Icons.warning_amber_rounded,
-            iconColor: JMColors.error,
-            priority: NotificationPriority.critical,
+                'Current estimated trip budget is within your planned spending limit.',
+            icon: Icons.account_balance_wallet_rounded,
+            agentColor: JMColors.wallet,
+            timestamp: '5 min ago',
           ),
         ],
       ),

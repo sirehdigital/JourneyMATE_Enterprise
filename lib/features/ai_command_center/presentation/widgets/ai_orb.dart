@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/design/colors/jm_colors.dart';
-import '../../../../core/design/radius/jm_radius.dart';
 import '../../../../core/design/shadows/jm_shadows.dart';
 
 class AIOrb extends StatefulWidget {
@@ -36,7 +35,7 @@ class _AIOrbState extends State<AIOrb> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _controller,
-      builder: (_, __) {
+      builder: (context, child) {
         final scale = 0.96 + (_controller.value * 0.08);
 
         return Transform.scale(
@@ -44,19 +43,19 @@ class _AIOrbState extends State<AIOrb> with SingleTickerProviderStateMixin {
           child: Container(
             width: widget.size,
             height: widget.size,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [JMColors.primary, JMColors.ai],
               ),
-              boxShadow: const [JMShadows.lg],
+              boxShadow: [JMShadows.lg],
             ),
             child: Center(
               child: Container(
-                width: widget.size * .72,
-                height: widget.size * .72,
+                width: widget.size * 0.72,
+                height: widget.size * 0.72,
                 decoration: const BoxDecoration(
                   color: JMColors.surface,
                   shape: BoxShape.circle,

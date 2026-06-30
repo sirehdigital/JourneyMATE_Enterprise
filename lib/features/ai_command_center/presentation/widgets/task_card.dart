@@ -42,50 +42,33 @@ class TaskCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          //-----------------------------------------
-          // Header
-          //-----------------------------------------
           Row(
             children: [
               Container(
                 width: 52,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: iconColor.withOpacity(.10),
+                  color: iconColor.withValues(alpha: 0.10),
                   borderRadius: JMRadius.radiusMD,
                 ),
                 child: Icon(icon, color: iconColor, size: 28),
               ),
-
               const SizedBox(width: JMSpacing.lg),
-
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(title, style: JMTypography.titleMedium),
-
                     const SizedBox(height: JMSpacing.xs),
-
                     Text(description, style: JMTypography.bodySmall),
                   ],
                 ),
               ),
             ],
           ),
-
           const SizedBox(height: JMSpacing.xxl),
-
-          //-----------------------------------------
-          // Progress
-          //-----------------------------------------
           TaskProgress(progress: progress, status: status),
-
           const SizedBox(height: JMSpacing.lg),
-
-          //-----------------------------------------
-          // Footer
-          //-----------------------------------------
           Row(
             children: [
               const Icon(
@@ -93,20 +76,16 @@ class TaskCard extends StatelessWidget {
                 size: 18,
                 color: JMColors.textSecondary,
               ),
-
               const SizedBox(width: JMSpacing.sm),
-
               Text('ETA : $eta', style: JMTypography.bodySmall),
-
               const Spacer(),
-
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: JMSpacing.md,
                   vertical: JMSpacing.sm,
                 ),
                 decoration: BoxDecoration(
-                  color: iconColor.withOpacity(.08),
+                  color: iconColor.withValues(alpha: 0.08),
                   borderRadius: JMRadius.radiusPill,
                 ),
                 child: Text(
@@ -128,13 +107,10 @@ class TaskCard extends StatelessWidget {
     switch (status) {
       case AITaskStatus.pending:
         return 'PENDING';
-
       case AITaskStatus.running:
         return 'RUNNING';
-
       case AITaskStatus.completed:
         return 'COMPLETED';
-
       case AITaskStatus.failed:
         return 'FAILED';
     }

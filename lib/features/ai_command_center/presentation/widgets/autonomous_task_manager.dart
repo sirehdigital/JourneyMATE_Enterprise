@@ -5,11 +5,11 @@ import '../../../../core/design/radius/jm_radius.dart';
 import '../../../../core/design/shadows/jm_shadows.dart';
 import '../../../../core/design/spacing/jm_spacing.dart';
 import '../../../../core/design/typography/jm_typography.dart';
-import 'insight_chart_placeholder.dart';
-import 'insight_tile.dart';
 
-class AIInsightPanel extends StatelessWidget {
-  const AIInsightPanel({super.key});
+import 'autonomous_task_list.dart';
+
+class AutonomousTaskManager extends StatelessWidget {
+  const AutonomousTaskManager({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,16 +31,16 @@ class AIInsightPanel extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 54,
-                height: 54,
+                width: 60,
+                height: 60,
                 decoration: BoxDecoration(
-                  color: JMColors.primary.withValues(alpha: 0.10),
+                  color: JMColors.ai.withOpacity(.10),
                   borderRadius: JMRadius.radiusLG,
                 ),
                 child: const Icon(
-                  Icons.insights_rounded,
-                  color: JMColors.primary,
-                  size: 28,
+                  Icons.auto_mode_rounded,
+                  color: JMColors.ai,
+                  size: 30,
                 ),
               ),
 
@@ -51,12 +51,12 @@ class AIInsightPanel extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'AI Insight Dashboard',
+                      'AI Autonomous Task Manager',
                       style: JMTypography.titleLarge,
                     ),
                     SizedBox(height: JMSpacing.xs),
                     Text(
-                      'Enterprise Travel Intelligence',
+                      'Enterprise AI execution engine',
                       style: JMTypography.bodySmall,
                     ),
                   ],
@@ -68,30 +68,25 @@ class AIInsightPanel extends StatelessWidget {
           const SizedBox(height: JMSpacing.xxxl),
 
           //--------------------------------------------------
-          // KPI Tiles
+          // Summary Cards
           //--------------------------------------------------
           Row(
             children: const [
               Expanded(
-                child: InsightTile(
-                  title: 'Travel Score',
-                  value: '96%',
-                  subtitle: 'Excellent match',
-                  trend: '+4%',
-                  icon: Icons.star_rounded,
+                child: _TaskSummaryCard(
+                  title: 'Running',
+                  value: '2',
                   color: JMColors.primary,
+                  icon: Icons.play_circle_fill_rounded,
                 ),
               ),
               SizedBox(width: JMSpacing.lg),
               Expanded(
-                child: InsightTile(
-                  title: 'Budget Usage',
-                  value: 'RM650',
-                  subtitle: 'of RM800',
-                  trend: '-8%',
-                  isPositive: false,
-                  icon: Icons.account_balance_wallet_rounded,
-                  color: JMColors.wallet,
+                child: _TaskSummaryCard(
+                  title: 'Completed',
+                  value: '1',
+                  color: JMColors.success,
+                  icon: Icons.check_circle_rounded,
                 ),
               ),
             ],
@@ -102,24 +97,20 @@ class AIInsightPanel extends StatelessWidget {
           Row(
             children: const [
               Expanded(
-                child: InsightTile(
-                  title: 'Destination Match',
-                  value: '98%',
-                  subtitle: 'AI Confidence',
-                  trend: '+2%',
-                  icon: Icons.place_rounded,
-                  color: JMColors.secondary,
+                child: _TaskSummaryCard(
+                  title: 'Pending',
+                  value: '1',
+                  color: JMColors.warning,
+                  icon: Icons.schedule_rounded,
                 ),
               ),
               SizedBox(width: JMSpacing.lg),
               Expanded(
-                child: InsightTile(
-                  title: 'Weather',
-                  value: '95%',
-                  subtitle: 'Forecast Accuracy',
-                  trend: '+1%',
-                  icon: Icons.sunny,
-                  color: JMColors.warning,
+                child: _TaskSummaryCard(
+                  title: 'Failed',
+                  value: '1',
+                  color: JMColors.error,
+                  icon: Icons.error_rounded,
                 ),
               ),
             ],
@@ -128,37 +119,74 @@ class AIInsightPanel extends StatelessWidget {
           const SizedBox(height: JMSpacing.xxxl),
 
           //--------------------------------------------------
-          // Analytics
+          // Autonomous Task Queue
           //--------------------------------------------------
-          const InsightChartPlaceholder(title: 'Travel Analytics'),
+          const AutonomousTaskList(),
 
-          const SizedBox(height: JMSpacing.xxxl),
+          const SizedBox(height: JMSpacing.xxl),
 
           //--------------------------------------------------
-          // AI Summary
+          // Footer Status
           //--------------------------------------------------
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(JMSpacing.lg),
             decoration: BoxDecoration(
               color: JMColors.background,
-              borderRadius: JMRadius.radiusLG,
-              border: Border.all(color: JMColors.border),
+              borderRadius: JMRadius.radiusMD,
             ),
-            child: const Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Icon(Icons.auto_awesome_rounded, color: JMColors.ai),
-                SizedBox(width: JMSpacing.md),
+                const Icon(Icons.memory_rounded, color: JMColors.ai),
+                const SizedBox(width: JMSpacing.md),
                 Expanded(
                   child: Text(
-                    'JourneyMATE AI predicts this itinerary has a very high success rate based on travel preferences, weather conditions, accommodation availability, transportation options and estimated budget.',
-                    style: JMTypography.bodyMedium,
+                    'AI Autonomous Engine is actively managing travel workflows and monitoring task execution.',
+                    style: JMTypography.bodyMedium.copyWith(
+                      color: JMColors.textPrimary,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TaskSummaryCard extends StatelessWidget {
+  const _TaskSummaryCard({
+    required this.title,
+    required this.value,
+    required this.color,
+    required this.icon,
+  });
+
+  final String title;
+  final String value;
+  final Color color;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(JMSpacing.lg),
+      decoration: BoxDecoration(
+        color: color.withOpacity(.08),
+        borderRadius: JMRadius.radiusMD,
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 30),
+          const SizedBox(height: JMSpacing.md),
+          Text(
+            value,
+            style: JMTypography.headlineMedium.copyWith(color: color),
+          ),
+          const SizedBox(height: JMSpacing.xs),
+          Text(title, style: JMTypography.labelMedium),
         ],
       ),
     );

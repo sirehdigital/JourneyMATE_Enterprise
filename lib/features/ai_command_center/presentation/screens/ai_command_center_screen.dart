@@ -11,7 +11,6 @@ import '../widgets/ai_notification_feed.dart';
 import '../widgets/ai_orb.dart';
 import '../widgets/ai_quick_actions.dart';
 import '../widgets/ai_recent_activity.dart';
-import '../widgets/ai_recommendation_card.dart';
 import '../widgets/ai_status_card.dart';
 import '../widgets/ai_task_queue.dart';
 import '../widgets/recommendation_list.dart';
