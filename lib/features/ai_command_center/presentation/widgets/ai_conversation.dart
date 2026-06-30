@@ -7,14 +7,18 @@ import '../../../../core/design/spacing/jm_spacing.dart';
 import '../../../../core/design/typography/jm_typography.dart';
 import 'ai_message_bubble.dart';
 import 'typing_indicator.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AIConversation extends StatelessWidget {
+import '../../../../core/providers/ai_provider.dart';
+
+class AIConversation extends ConsumerWidget {
   const AIConversation({super.key, this.isTyping = true});
 
   final bool isTyping;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final aiState = ref.watch(aiProvider);
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -51,7 +55,7 @@ class AIConversation extends StatelessWidget {
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text('JourneyMATE AI', style: JMTypography.titleMedium),
                       SizedBox(height: JMSpacing.xs),
                       Text(
@@ -73,11 +77,11 @@ class AIConversation extends StatelessWidget {
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
+                    children: [
                       Icon(Icons.circle, color: JMColors.success, size: 10),
                       SizedBox(width: JMSpacing.sm),
                       Text(
-                        'ONLINE',
+                        aiState.loading ? 'THINKING' : 'ONLINE',
                         style: TextStyle(
                           color: JMColors.success,
                           fontWeight: FontWeight.bold,
@@ -110,18 +114,19 @@ class AIConversation extends StatelessWidget {
               timestamp: '09:31 AM',
             ),
 
-            const AIMessageBubble(
+            AIMessageBubble(
               message:
+                  aiState.response?.message ??
                   'Certainly.\n\n'
-                  'I am analysing your destination, budget, accommodation, transport and attractions.\n\n'
-                  'Your personalised itinerary will be ready shortly.',
+                      'I am analysing your destination, budget, accommodation, transport and attractions.\n\n'
+                      'Your personalised itinerary will be ready shortly.',
               timestamp: '09:31 AM',
             ),
 
             //------------------------------------
             // Typing
             //------------------------------------
-            if (isTyping) ...[
+            if (aiState.loading) ...[
               const SizedBox(height: JMSpacing.md),
 
               Row(

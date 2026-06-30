@@ -4,21 +4,22 @@ import '../services/ai_service.dart';
 /// ===============================================================
 /// JourneyMATE Enterprise
 /// AI Repository
-/// ---------------------------------------------------------------
-/// Repository layer between UI and AI Service.
+/// ===============================================================
+///
+/// Repository Layer
 ///
 /// Responsibilities:
-/// • Business Logic
-/// • AI Orchestration
+/// • Bridge UI ↔ AI Service
 /// • Future Cache Layer
-/// • Multiple AI Providers
+/// • AI Provider Selection
+/// • Business Logic
 /// ===============================================================
 
 class AIRepository {
   AIRepository();
 
   //--------------------------------------------------------------
-  // General Prompt
+  // General AI Prompt
   //--------------------------------------------------------------
 
   Future<AIResponse> askAI(String prompt) async {
@@ -58,7 +59,7 @@ class AIRepository {
   }
 
   //--------------------------------------------------------------
-  // AI Health Check
+  // Health Check
   //--------------------------------------------------------------
 
   Future<bool> ping() async {

@@ -1,130 +1,42 @@
 import 'package:flutter/foundation.dart';
-import '../models/ai_activity.dart';
 
 /// ===============================================================
 /// JourneyMATE Enterprise
 /// AI Response Model
-/// ---------------------------------------------------------------
-/// Standard response model for all AI providers.
-/// Supported:
-/// - OpenAI
-/// - Gemini
-/// - Claude
-/// - Future AI Engines
 /// ===============================================================
 
 @immutable
 class AIResponse {
   const AIResponse({
-    required this.success,
     required this.message,
-    this.data,
-    this.model,
-    this.tokens = 0,
-    this.processingTime = Duration.zero,
-    this.createdAt,
+    this.success = true,
+    this.model = 'Gemini 2.5 Pro',
+    this.timestamp,
   });
 
-  /// Indicates whether the AI request succeeded.
-  final bool success;
-
-  /// AI response message.
+  /// AI reply message
   final String message;
 
-  /// Optional structured data returned by AI.
-  final Map<String, dynamic>? data;
+  /// Response status
+  final bool success;
 
-  /// AI model used.
-  final String? model;
+  /// AI model name
+  final String model;
 
-  /// Token usage.
-  final int tokens;
+  /// Response timestamp
+  final DateTime? timestamp;
 
-  /// Processing time.
-  final Duration processingTime;
-
-  /// Timestamp.
-  final DateTime? createdAt;
-
-  /// Empty response.
-  factory AIResponse.empty() {
-    return AIResponse(success: false, message: '', createdAt: DateTime.now());
-  }
-
-  /// Success response.
-  factory AIResponse.success({
-    required String message,
-    Map<String, dynamic>? data,
-    String? model,
-    int tokens = 0,
-    Duration processingTime = Duration.zero,
-  }) {
-    return AIResponse(
-      success: true,
-      message: message,
-      data: data,
-      model: model,
-      tokens: tokens,
-      processingTime: processingTime,
-      createdAt: DateTime.now(),
-    );
-  }
-
-  /// Error response.
-  factory AIResponse.error(String message) {
-    return AIResponse(
-      success: false,
-      message: message,
-      createdAt: DateTime.now(),
-    );
-  }
-
-  /// JSON Serialization.
-  Map<String, dynamic> toJson() {
-    return {
-      'success': success,
-      'message': message,
-      'data': data,
-      'model': model,
-      'tokens': tokens,
-      'processingTime': processingTime.inMilliseconds,
-      'createdAt': createdAt?.toIso8601String(),
-    };
-  }
-
-  /// JSON Deserialization.
-  factory AIResponse.fromJson(Map<String, dynamic> json) {
-    return AIResponse(
-      success: json['success'] ?? false,
-      message: json['message'] ?? '',
-      data: json['data'],
-      model: json['model'],
-      tokens: json['tokens'] ?? 0,
-      processingTime: Duration(milliseconds: json['processingTime'] ?? 0),
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'])
-          : null,
-    );
-  }
-
-  /// Clone object.
   AIResponse copyWith({
-    bool? success,
     String? message,
-    Map<String, dynamic>? data,
+    bool? success,
     String? model,
-    int? tokens,
-    Duration? processingTime,
-    DateTime? createdAt,
+    DateTime? timestamp,
   }) {
     return AIResponse(
-      success: success ?? this.success,
       message: message ?? this.message,
-      data: data ?? this.data,
+      success: success ?? this.success,
       model: model ?? this.model,
-      tokens: tokens ?? this.tokens,
-      processingTime: processingTime ?? this.processingTime,
-      createdAt: createdAt ?? this.createdAt,
+      timestamp: timestamp ?? this.timestamp,
     );
   }
 
@@ -132,10 +44,10 @@ class AIResponse {
   String toString() {
     return '''
 AIResponse(
-  success: $success,
   message: $message,
+  success: $success,
   model: $model,
-  tokens: $tokens,
+  timestamp: $timestamp,
 )
 ''';
   }

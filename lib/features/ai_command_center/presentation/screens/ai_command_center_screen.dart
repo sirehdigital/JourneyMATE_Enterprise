@@ -50,7 +50,7 @@ class AICommandCenterScreen extends StatelessWidget {
 
               const Center(
                 child: Text(
-                  'JourneyMATE Enterprise AI',
+                  'JourneyMATE AI',
                   style: JMTypography.headlineSmall,
                   textAlign: TextAlign.center,
                 ),
@@ -60,7 +60,7 @@ class AICommandCenterScreen extends StatelessWidget {
 
               const Center(
                 child: Text(
-                  'Enterprise Travel Intelligence Platform',
+                  'Your Travel Intelligence Platform',
                   style: JMTypography.bodyMedium,
                   textAlign: TextAlign.center,
                 ),
