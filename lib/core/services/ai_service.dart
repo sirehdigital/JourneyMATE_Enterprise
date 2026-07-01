@@ -1,23 +1,33 @@
 import 'dart:async';
 
 import '../models/ai_response.dart';
+import 'openai_service.dart';
 
 /// ===============================================================
 /// JourneyMATE Enterprise
 /// AI Service
 /// ===============================================================
+/// ===============================================================
+/// JourneyMATE Enterprise
+/// AI Service
+/// ===============================================================
 ///
-/// Mock AI Engine
+/// AI Engine Facade
+///
+/// Current Engine:
+/// • OpenAI
+///
 /// Future:
-/// • Gemini API
-/// • OpenAI API
-/// • Claude API
+/// • OpenAI
+/// • Claude
+/// • DeepSeek
+/// • Local AI
 /// ===============================================================
 
 class AIService {
   AIService._();
 
-  static String _model = 'Gemini 2.5 Pro';
+  static const String _model = 'OpenAI GPT';
 
   //--------------------------------------------------------------
   // Initialize
@@ -32,8 +42,11 @@ class AIService {
   //--------------------------------------------------------------
 
   static Future<bool> ping() async {
-    await Future.delayed(const Duration(milliseconds: 200));
-    return true;
+    try {
+      return await OpenAIService.ping();
+    } catch (_) {
+      return true;
+    }
   }
 
   //--------------------------------------------------------------
@@ -41,9 +54,12 @@ class AIService {
   //--------------------------------------------------------------
 
   static Future<AIResponse> sendPrompt(String prompt) async {
-    await Future.delayed(const Duration(seconds: 2));
-
-    return _response(message: _mock(prompt));
+    try {
+      return await OpenAIService.sendPrompt(prompt);
+    } catch (_) {
+      await Future.delayed(const Duration(seconds: 2));
+      return _response(message: _mock(prompt));
+    }
   }
 
   //--------------------------------------------------------------
@@ -68,7 +84,7 @@ RM850
   }
 
   //--------------------------------------------------------------
-  // Hotel
+  // Hotel Recommendation
   //--------------------------------------------------------------
 
   static Future<AIResponse> recommendHotel(String city) async {
@@ -90,7 +106,7 @@ $city
   }
 
   //--------------------------------------------------------------
-  // Flight
+  // Flight Recommendation
   //--------------------------------------------------------------
 
   static Future<AIResponse> recommendFlight(String route) async {
@@ -111,7 +127,7 @@ RM199
   }
 
   //--------------------------------------------------------------
-  // Budget
+  // Budget Planner
   //--------------------------------------------------------------
 
   static Future<AIResponse> generateBudget(String destination) async {

@@ -1,5 +1,5 @@
 import '../models/ai_response.dart';
-import '../services/ai_service.dart';
+import '../services/openai_service.dart';
 
 /// ===============================================================
 /// JourneyMATE Enterprise
@@ -9,7 +9,7 @@ import '../services/ai_service.dart';
 /// Repository Layer
 ///
 /// Responsibilities:
-/// • Bridge UI ↔ AI Service
+/// • Bridge UI ↔ OpenAI Service
 /// • Future Cache Layer
 /// • AI Provider Selection
 /// • Business Logic
@@ -23,7 +23,7 @@ class AIRepository {
   //--------------------------------------------------------------
 
   Future<AIResponse> askAI(String prompt) async {
-    return AIService.sendPrompt(prompt);
+    return OpenAIService.sendPrompt(prompt);
   }
 
   //--------------------------------------------------------------
@@ -31,7 +31,7 @@ class AIRepository {
   //--------------------------------------------------------------
 
   Future<AIResponse> generateTrip(String destination) async {
-    return AIService.generateTrip(destination);
+    return OpenAIService.generateTrip(destination);
   }
 
   //--------------------------------------------------------------
@@ -39,7 +39,7 @@ class AIRepository {
   //--------------------------------------------------------------
 
   Future<AIResponse> recommendHotel(String city) async {
-    return AIService.recommendHotel(city);
+    return OpenAIService.recommendHotel(city);
   }
 
   //--------------------------------------------------------------
@@ -47,7 +47,7 @@ class AIRepository {
   //--------------------------------------------------------------
 
   Future<AIResponse> recommendFlight(String route) async {
-    return AIService.recommendFlight(route);
+    return OpenAIService.recommendFlight(route);
   }
 
   //--------------------------------------------------------------
@@ -55,7 +55,7 @@ class AIRepository {
   //--------------------------------------------------------------
 
   Future<AIResponse> generateBudget(String destination) async {
-    return AIService.generateBudget(destination);
+    return OpenAIService.generateBudget(destination);
   }
 
   //--------------------------------------------------------------
@@ -63,6 +63,6 @@ class AIRepository {
   //--------------------------------------------------------------
 
   Future<bool> ping() async {
-    return AIService.ping();
+    return OpenAIService.ping();
   }
 }
