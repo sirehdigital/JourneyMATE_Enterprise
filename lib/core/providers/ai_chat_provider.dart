@@ -211,7 +211,7 @@ class AIChatController extends StateNotifier<List<AIMessage>> {
       final localCardResponse = _buildAIBrainCardResponse(prompt);
       final localMarkdown = localCardResponse.markdown;
       if (!OpenAIService.isConfigured) {
-        _appendAIMessage(localMarkdown);
+        _appendAIMessage(localMarkdown, metadata: localCardResponse.metadata);
         return;
       }
 
@@ -223,6 +223,7 @@ class AIChatController extends StateNotifier<List<AIMessage>> {
         polishedResponse.success && polishedMessage.isNotEmpty
             ? polishedMessage
             : localMarkdown,
+        metadata: localCardResponse.metadata,
       );
     } on TimeoutException catch (exception) {
       final errorMessage =
@@ -262,11 +263,15 @@ class AIChatController extends StateNotifier<List<AIMessage>> {
       final localCardResponse = _buildAIBrainCardResponse(prompt);
       final localMarkdown = localCardResponse.markdown;
       if (!OpenAIService.isConfigured) {
-        _replacePendingAIMessage(localMarkdown);
+        _replacePendingAIMessage(
+          localMarkdown,
+          metadata: localCardResponse.metadata,
+        );
         _pendingAIMessageIndex = null;
         _pendingAIMessage = '';
         return;
       }
+      _setPendingAIMessageMetadata(localCardResponse.metadata);
 
       final stream = OpenAIService.streamPrompt(
         _buildLanguageLayerPrompt(localMarkdown),
@@ -333,13 +338,33 @@ class AIChatController extends StateNotifier<List<AIMessage>> {
     _replacePendingAIMessage(_pendingAIMessage);
   }
 
-  void _replacePendingAIMessage(String text) {
+  void _replacePendingAIMessage(
+    String text, {
+    Map<String, dynamic>? metadata,
+  }) {
     final index = _pendingAIMessageIndex;
     if (index == null || index < 0 || index >= state.length) {
       return;
     }
 
-    final updatedMessage = state[index].copyWith(message: text);
+    final updatedMessage = state[index].copyWith(
+      message: text,
+      metadata: metadata,
+    );
+    state = [
+      ...state.sublist(0, index),
+      updatedMessage,
+      ...state.sublist(index + 1),
+    ];
+  }
+
+  void _setPendingAIMessageMetadata(Map<String, dynamic> metadata) {
+    final index = _pendingAIMessageIndex;
+    if (index == null || index < 0 || index >= state.length) {
+      return;
+    }
+
+    final updatedMessage = state[index].copyWith(metadata: metadata);
     state = [
       ...state.sublist(0, index),
       updatedMessage,
@@ -406,10 +431,18 @@ class AIChatController extends StateNotifier<List<AIMessage>> {
     ];
   }
 
-  void _appendAIMessage(String message) {
+  void _appendAIMessage(
+    String message, {
+    Map<String, dynamic> metadata = const <String, dynamic>{},
+  }) {
     state = [
       ...state,
-      AIMessage(message: message, isUser: false, timestamp: DateTime.now()),
+      AIMessage(
+        message: message,
+        isUser: false,
+        timestamp: DateTime.now(),
+        metadata: metadata,
+      ),
     ];
   }
 

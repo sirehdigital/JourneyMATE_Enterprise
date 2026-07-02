@@ -9,7 +9,9 @@ import '../../../../core/design/typography/jm_typography.dart';
 import '../../../../core/models/ai_message.dart';
 import '../../../../core/providers/ai_chat_provider.dart';
 import '../../../../core/providers/ai_provider.dart';
+import '../../../travel_ai/cards/rendering/models/rendered_card_group.dart';
 import '../widgets/ai_chat_input.dart';
+import '../widgets/ai_smart_card_group.dart';
 import '../widgets/typing_indicator.dart';
 
 class AIConversationScreen extends ConsumerStatefulWidget {
@@ -241,6 +243,7 @@ class _AIConversationScreenState extends ConsumerState<AIConversationScreen> {
                       timestamp:
                           '${message.timestamp.hour.toString().padLeft(2, '0')}:${message.timestamp.minute.toString().padLeft(2, '0')}',
                       isUser: message.isUser,
+                      metadata: message.metadata,
                       onCopy: () => _copyMessage(message.message),
                     ),
                   );
@@ -321,12 +324,14 @@ class _ChatBubble extends StatelessWidget {
     required this.message,
     required this.timestamp,
     required this.isUser,
+    required this.metadata,
     required this.onCopy,
   });
 
   final String message;
   final String timestamp;
   final bool isUser;
+  final Map<String, dynamic> metadata;
   final VoidCallback onCopy;
 
   @override
@@ -334,6 +339,7 @@ class _ChatBubble extends StatelessWidget {
     final backgroundColor = isUser ? JMColors.primary : JMColors.background;
     final contentColor = isUser ? JMColors.textInverse : JMColors.textPrimary;
     final border = isUser ? null : Border.all(color: JMColors.border);
+    final renderedCardGroup = isUser ? null : _parseRenderedCardGroup();
     final radius = isUser
         ? const BorderRadius.only(
             topLeft: Radius.circular(JMRadius.lg),
@@ -408,6 +414,8 @@ class _ChatBubble extends StatelessWidget {
                         color: contentColor.withOpacity(.60),
                       ),
                     ),
+                    if (renderedCardGroup != null)
+                      AISMARTCardGroup(group: renderedCardGroup),
                   ],
                 ),
               ),
@@ -423,6 +431,28 @@ class _ChatBubble extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  RenderedCardGroup? _parseRenderedCardGroup() {
+    try {
+      final renderedCards = metadata['renderedCards'];
+      if (renderedCards is Map<String, dynamic>) {
+        final group = RenderedCardGroup.fromMap(renderedCards);
+        return group.cards.isEmpty ? null : group;
+      }
+      if (renderedCards is Map) {
+        final group = RenderedCardGroup.fromMap(
+          renderedCards.map<String, dynamic>(
+            (dynamic key, dynamic value) =>
+                MapEntry<String, dynamic>(key.toString(), value),
+          ),
+        );
+        return group.cards.isEmpty ? null : group;
+      }
+    } catch (_) {
+      return null;
+    }
+    return null;
   }
 }
 

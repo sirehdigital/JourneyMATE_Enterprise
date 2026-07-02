@@ -284,6 +284,7 @@ class _AIConversationState extends ConsumerState<AIConversation> {
                   '${message.timestamp.hour.toString().padLeft(2, '0')}:${message.timestamp.minute.toString().padLeft(2, '0')}',
               isUser: message.isUser,
               showCursor: showCursor,
+              metadata: message.metadata,
               onCopy: () => _copyMessage(message.message),
             ),
           ),

@@ -5,6 +5,8 @@ import '../../../../core/design/colors/jm_colors.dart';
 import '../../../../core/design/radius/jm_radius.dart';
 import '../../../../core/design/spacing/jm_spacing.dart';
 import '../../../../core/design/typography/jm_typography.dart';
+import '../../../travel_ai/cards/rendering/models/rendered_card_group.dart';
+import 'ai_smart_card_group.dart';
 
 class AIMessageBubble extends StatefulWidget {
   const AIMessageBubble({
@@ -13,6 +15,7 @@ class AIMessageBubble extends StatefulWidget {
     required this.timestamp,
     this.isUser = false,
     this.showCursor = false,
+    this.metadata = const <String, dynamic>{},
     required this.onCopy,
   });
 
@@ -20,6 +23,7 @@ class AIMessageBubble extends StatefulWidget {
   final String timestamp;
   final bool isUser;
   final bool showCursor;
+  final Map<String, dynamic> metadata;
   final VoidCallback onCopy;
 
   @override
@@ -52,6 +56,7 @@ class _AIMessageBubbleState extends State<AIMessageBubble>
         ? JMColors.textInverse
         : JMColors.textPrimary;
     final border = widget.isUser ? null : Border.all(color: JMColors.border);
+    final renderedCardGroup = widget.isUser ? null : _parseRenderedCardGroup();
     final radius = widget.isUser
         ? const BorderRadius.only(
             topLeft: Radius.circular(JMRadius.lg),
@@ -121,6 +126,8 @@ class _AIMessageBubbleState extends State<AIMessageBubble>
                               color: textColor.withOpacity(.65),
                             ),
                           ),
+                          if (renderedCardGroup != null)
+                            AISMARTCardGroup(group: renderedCardGroup),
                         ],
                       ),
                     ),
@@ -139,6 +146,28 @@ class _AIMessageBubbleState extends State<AIMessageBubble>
         ),
       ),
     );
+  }
+
+  RenderedCardGroup? _parseRenderedCardGroup() {
+    try {
+      final renderedCards = widget.metadata['renderedCards'];
+      if (renderedCards is Map<String, dynamic>) {
+        final group = RenderedCardGroup.fromMap(renderedCards);
+        return group.cards.isEmpty ? null : group;
+      }
+      if (renderedCards is Map) {
+        final group = RenderedCardGroup.fromMap(
+          renderedCards.map<String, dynamic>(
+            (dynamic key, dynamic value) =>
+                MapEntry<String, dynamic>(key.toString(), value),
+          ),
+        );
+        return group.cards.isEmpty ? null : group;
+      }
+    } catch (_) {
+      return null;
+    }
+    return null;
   }
 }
 
