@@ -1,4 +1,4 @@
-import '../../data/services/agent_result.dart';
+import 'agent_result.dart';
 
 /// Base class for all JourneyMATE AI agents.
 ///

@@ -1,4 +1,5 @@
-/// Immutable result returned by an AI agent.
+import 'agent_result.dart';
+
 ///
 /// The result contains success state, message payload, and optional
 /// metadata useful for downstream processing.

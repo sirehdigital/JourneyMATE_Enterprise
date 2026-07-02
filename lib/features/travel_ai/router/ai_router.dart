@@ -109,7 +109,7 @@ class AIRouter {
   }
 
   double _estimateConfidence(int agentCount, List<String> matchedKeywords) {
-    if (matchedKeywords.isEmpty || agentCount.isZero) {
+    if (matchedKeywords.isEmpty || agentCount == 0) {
       return 0.0;
     }
 
