@@ -8,6 +8,8 @@ import '../../features/travel_ai/brain/models/ai_brain_response.dart';
 import '../../features/travel_ai/brain/providers/ai_brain_provider.dart';
 import '../../features/travel_ai/cards/models/card_response.dart';
 import '../../features/travel_ai/cards/providers/ai_card_provider.dart';
+import '../../features/travel_ai/cards/rendering/models/rendered_card_group.dart';
+import '../../features/travel_ai/cards/rendering/providers/smart_card_provider.dart';
 import '../../features/travel_ai/response/providers/response_generator_provider.dart';
 import '../models/ai_message.dart';
 import '../services/openai_service.dart';
@@ -91,6 +93,9 @@ final aiChatStatusProvider =
     );
 
 final aiCardResponseProvider = StateProvider<CardResponse?>((ref) => null);
+final aiRenderedCardGroupProvider = StateProvider<RenderedCardGroup?>(
+  (ref) => null,
+);
 
 class AIChatController extends StateNotifier<List<AIMessage>> {
   AIChatController(this._ref) : super(_initialMessages);
@@ -271,12 +276,7 @@ class AIChatController extends StateNotifier<List<AIMessage>> {
         _appendStreamingToken,
         onError: (Object error, StackTrace stackTrace) {
           unawaited(
-            _handleStreamingError(
-              error,
-              stackTrace,
-              localMarkdown,
-              controller,
-            ),
+            _handleStreamingError(error, stackTrace, localMarkdown, controller),
           );
         },
         onDone: () {
@@ -427,8 +427,10 @@ class AIChatController extends StateNotifier<List<AIMessage>> {
   }
 
   String _buildAIBrainMarkdown(String prompt, {String? fallbackError}) {
-    return _buildAIBrainCardResponse(prompt, fallbackError: fallbackError)
-        .markdown;
+    return _buildAIBrainCardResponse(
+      prompt,
+      fallbackError: fallbackError,
+    ).markdown;
   }
 
   CardResponse _buildAIBrainCardResponse(
@@ -470,6 +472,7 @@ Please retry shortly or check the AI Brain configuration.
           'errorMessage': errorMessage,
         },
       );
+      _ref.read(aiRenderedCardGroupProvider.notifier).state = null;
       _ref.read(aiCardResponseProvider.notifier).state = cardResponse;
       return cardResponse;
     }
@@ -526,6 +529,19 @@ Please retry shortly or check the AI Brain configuration.
         'travellers': request.travellers,
       },
     );
+    final renderedCardGroup = _ref
+        .read(smartCardEngineProvider)
+        .generate(
+          cards: cards,
+          metadata: <String, dynamic>{
+            ...response.metadata,
+            'source': 'ai_chat_provider',
+            'destination': request.destination,
+            'durationDays': request.durationDays,
+          },
+        );
+    _ref.read(aiRenderedCardGroupProvider.notifier).state = renderedCardGroup;
+
     return CardResponse(
       markdown: normalizedMarkdown,
       cards: cards,
@@ -533,6 +549,8 @@ Please retry shortly or check the AI Brain configuration.
         ...response.metadata,
         'source': 'ai_chat_provider',
         'cardCount': cards.length,
+        'renderedCardCount': renderedCardGroup.cards.length,
+        'renderedCards': renderedCardGroup.toMap(),
         'generatedAt': response.generatedAt.toIso8601String(),
       },
     );
