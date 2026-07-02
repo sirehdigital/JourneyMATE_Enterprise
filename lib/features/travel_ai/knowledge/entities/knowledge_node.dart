@@ -5,12 +5,8 @@ class KnowledgeNode {
     required this.name,
     Map<String, dynamic>? attributes,
     Map<String, dynamic>? metadata,
-  }) : attributes = Map<String, dynamic>.unmodifiable(
-         attributes ?? const <String, dynamic>{},
-       ),
-       metadata = Map<String, dynamic>.unmodifiable(
-         metadata ?? const <String, dynamic>{},
-       );
+  }) : attributes = attributes ?? const <String, dynamic>{},
+       metadata = metadata ?? const <String, dynamic>{};
 
   final String id;
   final String type;

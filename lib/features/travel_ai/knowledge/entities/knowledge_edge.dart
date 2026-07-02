@@ -4,9 +4,7 @@ class KnowledgeEdge {
     required this.targetId,
     required this.relationship,
     Map<String, dynamic>? metadata,
-  }) : metadata = Map<String, dynamic>.unmodifiable(
-         metadata ?? const <String, dynamic>{},
-       );
+  }) : metadata = metadata ?? const <String, dynamic>{};
 
   final String sourceId;
   final String targetId;
