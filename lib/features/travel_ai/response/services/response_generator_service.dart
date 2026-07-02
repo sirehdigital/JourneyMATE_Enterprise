@@ -382,7 +382,7 @@ class ResponseGeneratorService {
         blockId: 'suggested-itinerary',
         blockType: 'itinerary',
         content: _firstAvailableText(<dynamic>[
-          _timelineToMarkdown(metadata['itineraryTimeline']),
+          _extractTimelineMarkdown(metadata),
           metadata['timelineMarkdown'],
           travelPlanSummary,
         ]),
@@ -519,6 +519,53 @@ class ResponseGeneratorService {
     return value.toString().trim();
   }
 
+  String _extractTimelineMarkdown(Map<String, dynamic> metadata) {
+    return _timelineToMarkdown(
+      _firstAvailableTimeline(<dynamic>[
+        metadata['itineraryTimeline'],
+        _nestedValue(metadata, <String>['travelPlan', 'itineraryTimeline']),
+        _nestedValue(metadata, <String>[
+          'travelPlan',
+          'metadata',
+          'itineraryTimeline',
+        ]),
+        _nestedValue(metadata, <String>['planner', 'itineraryTimeline']),
+        _nestedValue(metadata, <String>[
+          'planner',
+          'metadata',
+          'itineraryTimeline',
+        ]),
+        _nestedValue(
+          metadata,
+          <String>['travelPlanMetadata', 'itineraryTimeline'],
+        ),
+      ]),
+    );
+  }
+
+  dynamic _firstAvailableTimeline(List<dynamic> values) {
+    for (final value in values) {
+      final timeline = _normalizeMap(value);
+      final days = timeline['days'];
+      if (days is Map && days.isNotEmpty) {
+        return value;
+      }
+    }
+    return null;
+  }
+
+  dynamic _nestedValue(Map<String, dynamic> source, List<String> path) {
+    dynamic current = source;
+    for (final segment in path) {
+      final currentMap = _normalizeMap(current);
+      if (currentMap.isEmpty || !currentMap.containsKey(segment)) {
+        return null;
+      }
+      current = currentMap[segment];
+    }
+    return current;
+  }
+
   String _timelineToMarkdown(dynamic value) {
     final timeline = _normalizeMap(value);
     if (timeline.isEmpty) {
@@ -539,13 +586,13 @@ class ResponseGeneratorService {
 
     final buffer = StringBuffer();
     for (final day in dayNumbers) {
-      final stops = days[day.toString()];
+      final stops = days[day.toString()] ?? days[day];
       if (stops is! List || stops.isEmpty) {
         continue;
       }
 
       buffer
-        ..writeln('Day $day')
+        ..writeln('📅 Day $day')
         ..writeln();
 
       for (final stop in stops) {
@@ -555,19 +602,19 @@ class ResponseGeneratorService {
           continue;
         }
 
-        buffer
-          ..writeln('- Time: ${_formatTimelineTime(stopMap)}')
-          ..writeln('  - Activity: $title')
-          ..writeln(
-            '  - Category: ${_titleCase(stopMap['category']?.toString() ?? 'activity')}',
-          )
-          ..writeln(
-            '  - Estimated Duration: ${_formatTimelineDuration(stopMap['durationMinutes'])}',
-          );
-
+        final category = _titleCase(
+          stopMap['category']?.toString() ?? 'activity',
+        );
+        final duration = _formatTimelineDuration(stopMap['durationMinutes']);
         final notes = stopMap['description']?.toString().trim() ?? '';
+
+        buffer
+          ..writeln('${_formatTimelineStartTime(stopMap)} $title')
+          ..writeln('Category: $category')
+          ..writeln('Estimated Duration: $duration');
+
         if (notes.isNotEmpty) {
-          buffer.writeln('  - Notes: $notes');
+          buffer.writeln('Notes: $notes');
         }
         buffer.writeln();
       }
@@ -576,16 +623,9 @@ class ResponseGeneratorService {
     return buffer.toString().trim();
   }
 
-  String _formatTimelineTime(Map<String, dynamic> stop) {
+  String _formatTimelineStartTime(Map<String, dynamic> stop) {
     final startTime = stop['startTime']?.toString().trim() ?? '';
-    final endTime = stop['endTime']?.toString().trim() ?? '';
-    if (startTime.isEmpty && endTime.isEmpty) {
-      return 'Flexible';
-    }
-    if (endTime.isEmpty) {
-      return startTime;
-    }
-    return '$startTime - $endTime';
+    return startTime.isEmpty ? 'Flexible' : startTime;
   }
 
   String _formatTimelineDuration(dynamic value) {
