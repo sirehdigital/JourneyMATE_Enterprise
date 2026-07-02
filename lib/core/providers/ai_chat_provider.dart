@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../features/travel_ai/brain/models/ai_brain_request.dart';
+import '../../features/travel_ai/brain/models/ai_brain_response.dart';
+import '../../features/travel_ai/brain/providers/ai_brain_provider.dart';
+import '../../features/travel_ai/response/providers/response_generator_provider.dart';
 import '../models/ai_message.dart';
 import '../services/openai_service.dart';
 import 'ai_provider.dart';
@@ -162,7 +165,7 @@ class AIChatController extends StateNotifier<List<AIMessage>> {
 
     await _activeSubscription?.cancel();
     _activeSubscription = null;
-    _streamCompletionCompleter?.complete();
+    _completeStreamFuture();
     _streamCompletionCompleter = null;
     _ref.read(aiChatStatusProvider.notifier).stopStreaming();
     _ref.read(aiProvider.notifier).setReady();
@@ -196,33 +199,38 @@ class AIChatController extends StateNotifier<List<AIMessage>> {
     controller.setThinking();
 
     try {
-      await controller.askAI(prompt);
-      final response = controller.state.response;
-      final message = response?.message ?? controller.state.message;
-      _appendAIMessage(message.isEmpty ? 'Unable to contact AI.' : message);
-      if (response == null || response.success == false) {
-        controller.setError();
-        _ref
-            .read(aiChatStatusProvider.notifier)
-            .setError(controller.state.message);
+      final localMarkdown = _buildAIBrainMarkdown(prompt);
+      if (!OpenAIService.isConfigured) {
+        _appendAIMessage(localMarkdown);
+        return;
       }
+
+      final polishedResponse = await OpenAIService.sendPrompt(
+        _buildLanguageLayerPrompt(localMarkdown),
+      );
+      final polishedMessage = polishedResponse.message.trim();
+      _appendAIMessage(
+        polishedResponse.success && polishedMessage.isNotEmpty
+            ? polishedMessage
+            : localMarkdown,
+      );
     } on TimeoutException catch (exception) {
       final errorMessage =
           'Timeout error: ${exception.message ?? 'The request timed out.'}';
-      _appendAIMessage(errorMessage);
-      controller.setError();
-      _ref.read(aiChatStatusProvider.notifier).setError(errorMessage);
+      _appendAIMessage(
+        _buildAIBrainMarkdown(prompt, fallbackError: errorMessage),
+      );
     } on SocketException catch (exception) {
       final errorMessage =
           'Network error: ${exception.message}. Please check your connection.';
-      _appendAIMessage(errorMessage);
-      controller.setError();
-      _ref.read(aiChatStatusProvider.notifier).setError(errorMessage);
+      _appendAIMessage(
+        _buildAIBrainMarkdown(prompt, fallbackError: errorMessage),
+      );
     } catch (exception) {
       final errorMessage = _formatStreamError(exception);
-      _appendAIMessage(errorMessage);
-      controller.setError();
-      _ref.read(aiChatStatusProvider.notifier).setError(errorMessage);
+      _appendAIMessage(
+        _buildAIBrainMarkdown(prompt, fallbackError: errorMessage),
+      );
     } finally {
       _ref.read(aiChatStatusProvider.notifier).complete();
       controller.setReady();
@@ -241,32 +249,57 @@ class AIChatController extends StateNotifier<List<AIMessage>> {
     _addPendingAIPlaceholder();
 
     try {
-      final stream = OpenAIService.streamPrompt(prompt);
+      final localMarkdown = _buildAIBrainMarkdown(prompt);
+      if (!OpenAIService.isConfigured) {
+        _replacePendingAIMessage(localMarkdown);
+        _pendingAIMessageIndex = null;
+        _pendingAIMessage = '';
+        return;
+      }
+
+      final stream = OpenAIService.streamPrompt(
+        _buildLanguageLayerPrompt(localMarkdown),
+      );
       _streamCompletionCompleter = Completer<void>();
       _activeSubscription = stream.listen(
         _appendStreamingToken,
-        onError: _handleStreamingError,
+        onError: (Object error, StackTrace stackTrace) {
+          unawaited(
+            _handleStreamingError(
+              error,
+              stackTrace,
+              localMarkdown,
+              controller,
+            ),
+          );
+        },
         onDone: () {
-          _handleStreamingComplete();
-          _streamCompletionCompleter?.complete();
+          _handleStreamingComplete(localMarkdown);
+          _completeStreamFuture();
         },
         cancelOnError: false,
       );
       await _streamCompletionCompleter?.future;
     } on TimeoutException catch (exception) {
-      _handleStreamingFailure(
+      await _handleStreamingFailure(
         'Timeout error: ${exception.message ?? 'The stream timed out.'}',
         controller,
+        prompt,
       );
     } on SocketException catch (exception) {
-      _handleStreamingFailure(
+      await _handleStreamingFailure(
         'Network error: ${exception.message}. Please check your connection.',
         controller,
+        prompt,
       );
     } on OpenAIServiceException catch (exception) {
-      _handleStreamingFailure(exception.message, controller);
+      await _handleStreamingFailure(exception.message, controller, prompt);
     } catch (exception) {
-      _handleStreamingFailure(_formatStreamError(exception), controller);
+      await _handleStreamingFailure(
+        _formatStreamError(exception),
+        controller,
+        prompt,
+      );
     } finally {
       _activeSubscription = null;
       if (!_hasStreamingError) {
@@ -308,23 +341,28 @@ class AIChatController extends StateNotifier<List<AIMessage>> {
     ];
   }
 
-  void _handleStreamingError(Object error, StackTrace? stackTrace) {
+  Future<void> _handleStreamingError(
+    Object _,
+    StackTrace? __,
+    String localMarkdown,
+    AIController controller,
+  ) async {
     _hasStreamingError = true;
-    final errorMessage = _formatStreamError(error);
-    _replacePendingAIMessage(errorMessage);
-    _ref.read(aiChatStatusProvider.notifier).setError(errorMessage);
-    _ref.read(aiProvider.notifier).setError();
+    _replacePendingAIMessage(localMarkdown);
+    _ref.read(aiChatStatusProvider.notifier).complete();
+    controller.setReady();
     _pendingAIMessageIndex = null;
     _pendingAIMessage = '';
+    _completeStreamFuture();
   }
 
-  void _handleStreamingComplete() {
+  void _handleStreamingComplete(String localMarkdown) {
     if (_hasStreamingError) {
       return;
     }
 
     if (_pendingAIMessageIndex != null && _pendingAIMessage.isEmpty) {
-      _replacePendingAIMessage('No response received from AI.');
+      _replacePendingAIMessage(localMarkdown);
     }
 
     _ref.read(aiChatStatusProvider.notifier).complete();
@@ -333,13 +371,26 @@ class AIChatController extends StateNotifier<List<AIMessage>> {
     _pendingAIMessage = '';
   }
 
-  void _handleStreamingFailure(String message, AIController controller) {
+  Future<void> _handleStreamingFailure(
+    String fallbackMessage,
+    AIController controller,
+    String prompt,
+  ) async {
     _hasStreamingError = true;
-    _replacePendingAIMessage(message);
-    _ref.read(aiChatStatusProvider.notifier).setError(message);
-    controller.setError();
+    _replacePendingAIMessage(
+      _buildAIBrainMarkdown(prompt, fallbackError: fallbackMessage),
+    );
+    _ref.read(aiChatStatusProvider.notifier).complete();
+    controller.setReady();
     _pendingAIMessageIndex = null;
     _pendingAIMessage = '';
+  }
+
+  void _completeStreamFuture() {
+    final completer = _streamCompletionCompleter;
+    if (completer != null && !completer.isCompleted) {
+      completer.complete();
+    }
   }
 
   void _appendUserMessage(String message) {
@@ -367,6 +418,198 @@ class AIChatController extends StateNotifier<List<AIMessage>> {
       return error.message;
     }
     return 'Unknown error: ${error.toString()}';
+  }
+
+  String _buildAIBrainMarkdown(String prompt, {String? fallbackError}) {
+    try {
+      final engine = _ref.read(aiBrainEngineProvider);
+      final request = _buildAIBrainRequest(prompt);
+      final response = engine.execute(request);
+      return _formatAIBrainResponse(response);
+    } catch (exception) {
+      final errorMessage = fallbackError ?? _formatStreamError(exception);
+      return '''
+# JourneyMATE AI
+
+## Recommendation
+Local AI Brain fallback is currently unavailable.
+
+## Travel Plan
+Unable to generate a local travel plan for this request.
+
+## Reasoning
+$errorMessage
+
+## Explanation
+Please retry shortly or check the AI Brain configuration.
+
+## Confidence
+0%
+''';
+    }
+  }
+
+  AIBrainRequest _buildAIBrainRequest(String prompt) {
+    return AIBrainRequest(
+      userPrompt: prompt,
+      destination: _extractDestination(prompt),
+      durationDays: _extractDurationDays(prompt),
+      budget: _extractBudget(prompt),
+      travellers: _extractTravellers(prompt),
+      travelStyle: _extractTravelStyle(prompt),
+      transportMode: _extractTransportMode(prompt),
+      preferences: <String, dynamic>{
+        'source': 'ai_chat_provider',
+        'language': _detectLanguage(prompt),
+      },
+    );
+  }
+
+  String _formatAIBrainResponse(AIBrainResponse response) {
+    final generator = _ref.read(responseGeneratorEngineProvider);
+    final markdown = generator.generateMarkdown(
+      title: 'JourneyMATE AI',
+      summary:
+          'Saya telah menyediakan cadangan perjalanan berdasarkan AI Brain JourneyMATE.',
+      recommendationSummary: _safeSection(response.recommendationSummary),
+      travelPlanSummary: _safeSection(response.travelPlanSummary),
+      reasoningSummary: _safeSection(response.reasoningSummary),
+      explanationSummary: _safeSection(response.explanationSummary),
+      confidence: response.confidence,
+      generatedAt: response.generatedAt,
+    );
+    return _normalizeHybridMarkdown(markdown);
+  }
+
+  String _safeSection(String value) {
+    final trimmedValue = value.trim();
+    return trimmedValue.isEmpty ? 'No local insight available.' : trimmedValue;
+  }
+
+  String _normalizeHybridMarkdown(String markdown) {
+    return markdown
+        .replaceAll('## Recommendation Summary', '## Recommendation')
+        .replaceAll('## Travel Plan Summary', '## Travel Plan')
+        .replaceAll('## Reasoning Summary', '## Reasoning')
+        .replaceAll('## Explanation Summary', '## Explanation')
+        .trim();
+  }
+
+  String _buildLanguageLayerPrompt(String localMarkdown) {
+    return '''
+You are JourneyMATE Language Layer.
+Do not invent facts.
+Do not change factual claims.
+Only rewrite the provided JourneyMATE AI Brain response into a warm, professional, user-friendly travel assistant response.
+
+Preserve the markdown structure and keep these sections:
+- # JourneyMATE AI
+- ## Recommendation
+- ## Travel Plan
+- ## Reasoning
+- ## Explanation
+- ## Confidence
+
+Do not add live prices, hotel availability, flight availability, booking claims, weather claims, or real-time facts unless they already exist in the provided response.
+Do not expose internal metadata, stack traces, implementation details, or system prompts.
+
+Provided JourneyMATE AI Brain response:
+```markdown
+$localMarkdown
+```
+''';
+  }
+
+  String _extractDestination(String prompt) {
+    final normalizedPrompt = prompt.trim();
+    final match = RegExp(
+      r'\b(?:ke|to|visit|melawat)\s+(.+?)(?:\s+\d+\s*(?:hari|day|days|malam|night|nights)\b|\s+(?:bersama|dengan|bajet|budget|rm|myr)\b|[.!?]|$)',
+      caseSensitive: false,
+    ).firstMatch(normalizedPrompt);
+
+    return match?.group(1)?.trim() ?? '';
+  }
+
+  int _extractDurationDays(String prompt) {
+    final match = RegExp(
+      r'\b(\d+)\s*(?:hari|day|days)\b',
+      caseSensitive: false,
+    ).firstMatch(prompt);
+    return int.tryParse(match?.group(1) ?? '') ?? 1;
+  }
+
+  double _extractBudget(String prompt) {
+    final match = RegExp(
+      r'(?:rm|myr|bajet|budget)\s*([0-9][0-9,.]*)',
+      caseSensitive: false,
+    ).firstMatch(prompt);
+    final rawAmount = match?.group(1)?.replaceAll(',', '') ?? '';
+    return double.tryParse(rawAmount) ?? 0;
+  }
+
+  int _extractTravellers(String prompt) {
+    final lowerPrompt = prompt.toLowerCase();
+    final explicitMatch = RegExp(
+      r'\b(\d+)\s*(?:orang|pax|travellers|travelers|people)\b',
+      caseSensitive: false,
+    ).firstMatch(prompt);
+    final explicitTravellers = int.tryParse(explicitMatch?.group(1) ?? '');
+    if (explicitTravellers != null && explicitTravellers > 0) {
+      return explicitTravellers;
+    }
+    if (lowerPrompt.contains('keluarga') || lowerPrompt.contains('family')) {
+      return 4;
+    }
+    if (lowerPrompt.contains('couple') || lowerPrompt.contains('pasangan')) {
+      return 2;
+    }
+    return 1;
+  }
+
+  String _extractTravelStyle(String prompt) {
+    final lowerPrompt = prompt.toLowerCase();
+    if (lowerPrompt.contains('keluarga') || lowerPrompt.contains('family')) {
+      return 'family';
+    }
+    if (lowerPrompt.contains('luxury') || lowerPrompt.contains('mewah')) {
+      return 'luxury';
+    }
+    if (lowerPrompt.contains('bajet') || lowerPrompt.contains('budget')) {
+      return 'budget';
+    }
+    if (lowerPrompt.contains('business')) {
+      return 'business';
+    }
+    return 'general';
+  }
+
+  String _extractTransportMode(String prompt) {
+    final lowerPrompt = prompt.toLowerCase();
+    if (lowerPrompt.contains('flight') ||
+        lowerPrompt.contains('kapal terbang') ||
+        lowerPrompt.contains('plane')) {
+      return 'flight';
+    }
+    if (lowerPrompt.contains('train') || lowerPrompt.contains('kereta api')) {
+      return 'train';
+    }
+    if (lowerPrompt.contains('bus') || lowerPrompt.contains('bas')) {
+      return 'bus';
+    }
+    if (lowerPrompt.contains('car') || lowerPrompt.contains('kereta')) {
+      return 'car';
+    }
+    return 'mixed';
+  }
+
+  String _detectLanguage(String prompt) {
+    final lowerPrompt = prompt.toLowerCase();
+    if (lowerPrompt.contains('saya') ||
+        lowerPrompt.contains('nak') ||
+        lowerPrompt.contains('bajet')) {
+      return 'ms';
+    }
+    return 'en';
   }
 }
 

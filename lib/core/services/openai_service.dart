@@ -31,6 +31,8 @@ class OpenAIService {
   static const Duration _requestTimeout = Duration(seconds: 30);
   static const Set<int> _retryableStatusCodes = {429, 500, 502, 503, 504};
 
+  static bool get isConfigured => _apiKey.isNotEmpty;
+
   //--------------------------------------------------------------
   // Health Check
   //--------------------------------------------------------------

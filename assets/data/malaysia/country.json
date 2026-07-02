@@ -1,0 +1,13 @@
+{
+  "id": "my",
+  "name": "Malaysia",
+  "latitude": 4.2105,
+  "longitude": 101.9758,
+  "metadata": {
+    "iso2": "MY",
+    "iso3": "MYS",
+    "currency": "MYR",
+    "datasetVersion": "1.0.0",
+    "source": "journeymate-local"
+  }
+}
