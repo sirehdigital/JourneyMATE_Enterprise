@@ -381,7 +381,11 @@ class ResponseGeneratorService {
         title: '📅 Suggested Itinerary',
         blockId: 'suggested-itinerary',
         blockType: 'itinerary',
-        content: travelPlanSummary,
+        content: _firstAvailableText(<dynamic>[
+          _timelineToMarkdown(metadata['itineraryTimeline']),
+          metadata['timelineMarkdown'],
+          travelPlanSummary,
+        ]),
         icon: 'calendar',
         priority: 60,
       ),
@@ -513,6 +517,101 @@ class ResponseGeneratorService {
           .join('\n');
     }
     return value.toString().trim();
+  }
+
+  String _timelineToMarkdown(dynamic value) {
+    final timeline = _normalizeMap(value);
+    if (timeline.isEmpty) {
+      return '';
+    }
+
+    final days = timeline['days'];
+    if (days is! Map) {
+      return '';
+    }
+
+    final dayNumbers =
+        days.keys
+            .map((key) => int.tryParse(key.toString()) ?? 0)
+            .where((day) => day > 0)
+            .toList(growable: false)
+          ..sort();
+
+    final buffer = StringBuffer();
+    for (final day in dayNumbers) {
+      final stops = days[day.toString()];
+      if (stops is! List || stops.isEmpty) {
+        continue;
+      }
+
+      buffer
+        ..writeln('Day $day')
+        ..writeln();
+
+      for (final stop in stops) {
+        final stopMap = _normalizeMap(stop);
+        final title = stopMap['title']?.toString().trim() ?? '';
+        if (title.isEmpty) {
+          continue;
+        }
+
+        buffer
+          ..writeln('- Time: ${_formatTimelineTime(stopMap)}')
+          ..writeln('  - Activity: $title')
+          ..writeln(
+            '  - Category: ${_titleCase(stopMap['category']?.toString() ?? 'activity')}',
+          )
+          ..writeln(
+            '  - Estimated Duration: ${_formatTimelineDuration(stopMap['durationMinutes'])}',
+          );
+
+        final notes = stopMap['description']?.toString().trim() ?? '';
+        if (notes.isNotEmpty) {
+          buffer.writeln('  - Notes: $notes');
+        }
+        buffer.writeln();
+      }
+    }
+
+    return buffer.toString().trim();
+  }
+
+  String _formatTimelineTime(Map<String, dynamic> stop) {
+    final startTime = stop['startTime']?.toString().trim() ?? '';
+    final endTime = stop['endTime']?.toString().trim() ?? '';
+    if (startTime.isEmpty && endTime.isEmpty) {
+      return 'Flexible';
+    }
+    if (endTime.isEmpty) {
+      return startTime;
+    }
+    return '$startTime - $endTime';
+  }
+
+  String _formatTimelineDuration(dynamic value) {
+    final minutes = value is num
+        ? value.toInt()
+        : int.tryParse(value?.toString() ?? '') ?? 0;
+    if (minutes <= 0) {
+      return 'Flexible';
+    }
+    final hours = minutes ~/ 60;
+    final remainder = minutes % 60;
+    if (hours > 0 && remainder > 0) {
+      return '${hours}h ${remainder}m';
+    }
+    if (hours > 0) {
+      return '${hours}h';
+    }
+    return '${minutes}m';
+  }
+
+  String _titleCase(String value) {
+    final text = value.trim();
+    if (text.isEmpty) {
+      return 'Activity';
+    }
+    return text.substring(0, 1).toUpperCase() + text.substring(1);
   }
 
   bool _hasMeaningfulContent(String value) {

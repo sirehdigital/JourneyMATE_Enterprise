@@ -7,6 +7,8 @@ import '../models/itinerary_day.dart';
 import '../models/travel_plan.dart';
 import '../models/travel_plan_request.dart';
 import '../models/travel_plan_summary.dart';
+import '../timeline/models/itinerary_stop.dart';
+import '../timeline/services/itinerary_generator_service.dart';
 
 class TravelPlannerService {
   const TravelPlannerService({
@@ -19,6 +21,9 @@ class TravelPlannerService {
   final DestinationIntelligenceService _destinationService;
 
   TravelPlan generatePlan(TravelPlanRequest request) {
+    final timeline = const ItineraryGeneratorService().generateTimeline(
+      request,
+    );
     final itinerary = buildDailyItinerary(request);
     final summary = _buildSummary(request, itinerary);
     return TravelPlan(
@@ -28,42 +33,34 @@ class TravelPlannerService {
       metadata: <String, dynamic>{
         'knowledgeEngine': _knowledgeEngine.runtimeType.toString(),
         'destinationService': _destinationService.runtimeType.toString(),
+        'itineraryTimeline': timeline.toMap(),
       },
     );
   }
 
   List<ItineraryDay> buildDailyItinerary(TravelPlanRequest request) {
-    final activities = <ItineraryActivity>[];
+    final timeline = const ItineraryGeneratorService().generateTimeline(
+      request,
+    );
     final dayCount = request.durationDays.clamp(1, 7).toInt();
-
-    for (var day = 1; day <= dayCount; day++) {
-      activities.add(
-        ItineraryActivity(
-          id: 'day-$day-activity',
-          title: 'Explore ${request.destination}',
-          category: 'Attraction',
-          location: request.destination,
-          startTime: '${8 + ((day - 1) % 3)}:00',
-          endTime: '${10 + ((day - 1) % 3)}:00',
-          estimatedCost: request.budget > 0
-              ? request.budget / dayCount / 4
-              : 50.0,
-          metadata: <String, dynamic>{'day': day},
-        ),
-      );
-    }
 
     return List<ItineraryDay>.generate(
       dayCount,
       (index) => ItineraryDay(
         dayNumber: index + 1,
         title: 'Day ${index + 1}',
-        activities: activities
-            .where((activity) => activity.metadata['day'] == index + 1)
+        activities: timeline
+            .stopsForDay(index + 1)
+            .map(
+              (stop) => _activityFromStop(
+                stop: stop,
+                request: request,
+                day: index + 1,
+                dayCount: dayCount,
+              ),
+            )
             .toList(growable: false),
-        estimatedBudget: request.budget > 0
-            ? request.budget / dayCount
-            : 100.0,
+        estimatedBudget: request.budget > 0 ? request.budget / dayCount : 100.0,
       ),
       growable: false,
     );
@@ -113,6 +110,31 @@ class TravelPlannerService {
         (sum, day) => sum + day.activities.length,
       ),
       recommendationScore: recommendationScore,
+    );
+  }
+
+  ItineraryActivity _activityFromStop({
+    required ItineraryStop stop,
+    required TravelPlanRequest request,
+    required int day,
+    required int dayCount,
+  }) {
+    return ItineraryActivity(
+      id: stop.id,
+      title: stop.title,
+      category: stop.category,
+      location: request.destination,
+      startTime: stop.startTime,
+      endTime: stop.endTime,
+      estimatedCost: request.budget > 0 ? request.budget / dayCount / 3 : 50.0,
+      metadata: <String, dynamic>{
+        ...stop.metadata,
+        'day': day,
+        'description': stop.description,
+        'durationMinutes': stop.duration.inMinutes,
+        'latitude': stop.latitude,
+        'longitude': stop.longitude,
+      },
     );
   }
 }
