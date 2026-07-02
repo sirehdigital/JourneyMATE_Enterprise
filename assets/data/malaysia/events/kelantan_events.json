@@ -1,0 +1,44 @@
+[
+  {
+    "id": "my-03-event-kelantan-cultural-craft-week",
+    "name": "Kelantan Cultural and Craft Week",
+    "state": "kelantan",
+    "district": "Kota Bharu",
+    "latitude": 6.1254,
+    "longitude": 102.2381,
+    "metadata": {
+      "type": "recurring-tourism-event",
+      "recurrence": "annual-sample",
+      "categories": ["culture", "craft", "heritage"],
+      "notes": "Sample recurring event concept highlighting batik, songket, wau, local crafts, and cultural demonstrations."
+    }
+  },
+  {
+    "id": "my-03-event-kelantan-food-heritage-trail",
+    "name": "Kelantan Food Heritage Trail",
+    "state": "kelantan",
+    "district": "Kota Bharu",
+    "latitude": 6.1303,
+    "longitude": 102.2388,
+    "metadata": {
+      "type": "recurring-tourism-event",
+      "recurrence": "seasonal-sample",
+      "categories": ["food", "market", "culture"],
+      "notes": "Sample recurring tourism event concept focused on Kelantanese breakfast, market food, nasi ulam, and ayam percik routes."
+    }
+  },
+  {
+    "id": "my-03-event-east-coast-beach-family-day",
+    "name": "East Coast Beach Family Day",
+    "state": "kelantan",
+    "district": "Bachok",
+    "latitude": 6.0729,
+    "longitude": 102.4176,
+    "metadata": {
+      "type": "recurring-tourism-event",
+      "recurrence": "school-holiday-sample",
+      "categories": ["beach", "family", "local-community"],
+      "notes": "Sample recurring event concept for family-friendly beach activities along Kelantan's coast."
+    }
+  }
+]

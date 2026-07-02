@@ -1,0 +1,93 @@
+[
+  {
+    "id": "my-03-dest-pasar-siti-khadijah",
+    "name": "Pasar Siti Khadijah",
+    "state": "kelantan",
+    "district": "Kota Bharu",
+    "latitude": 6.1303,
+    "longitude": 102.2388,
+    "metadata": {
+      "type": "market",
+      "categories": ["food", "culture", "shopping"],
+      "notes": "Iconic central market known for local produce, snacks, textiles, and Kelantanese daily life."
+    }
+  },
+  {
+    "id": "my-03-dest-pantai-cahaya-bulan",
+    "name": "Pantai Cahaya Bulan",
+    "state": "kelantan",
+    "district": "Kota Bharu",
+    "latitude": 6.2238,
+    "longitude": 102.3131,
+    "metadata": {
+      "type": "beach",
+      "categories": ["beach", "family", "local-food"],
+      "notes": "Popular coastal area north of Kota Bharu with beachside stalls and family leisure stops."
+    }
+  },
+  {
+    "id": "my-03-dest-muzium-negeri-kelantan",
+    "name": "Muzium Negeri Kelantan",
+    "state": "kelantan",
+    "district": "Kota Bharu",
+    "latitude": 6.1234,
+    "longitude": 102.2396,
+    "metadata": {
+      "type": "museum",
+      "categories": ["heritage", "culture", "history"],
+      "notes": "State museum introducing Kelantanese history, culture, and local identity."
+    }
+  },
+  {
+    "id": "my-03-dest-istana-jahar",
+    "name": "Istana Jahar",
+    "state": "kelantan",
+    "district": "Kota Bharu",
+    "latitude": 6.1321,
+    "longitude": 102.2366,
+    "metadata": {
+      "type": "heritage-site",
+      "categories": ["heritage", "architecture", "culture"],
+      "notes": "Historic royal palace building in Kota Bharu's cultural zone."
+    }
+  },
+  {
+    "id": "my-03-dest-pantai-irama",
+    "name": "Pantai Irama",
+    "state": "kelantan",
+    "district": "Bachok",
+    "latitude": 6.0729,
+    "longitude": 102.4176,
+    "metadata": {
+      "type": "beach",
+      "categories": ["beach", "family", "leisure"],
+      "notes": "Well-known Bachok beach destination with open coastal scenery."
+    }
+  },
+  {
+    "id": "my-03-dest-rantau-panjang",
+    "name": "Rantau Panjang",
+    "state": "kelantan",
+    "district": "Pasir Mas",
+    "latitude": 6.0176,
+    "longitude": 101.9735,
+    "metadata": {
+      "type": "border-town",
+      "categories": ["shopping", "border", "local-culture"],
+      "notes": "Border town known for cross-border shopping and local market activity."
+    }
+  },
+  {
+    "id": "my-03-dest-pengkalan-kubor",
+    "name": "Pengkalan Kubor",
+    "state": "kelantan",
+    "district": "Tumpat",
+    "latitude": 6.2246,
+    "longitude": 102.0982,
+    "metadata": {
+      "type": "border-town",
+      "categories": ["shopping", "border", "local-culture"],
+      "notes": "Border area in Tumpat associated with local trade and river-crossing activity."
+    }
+  }
+]

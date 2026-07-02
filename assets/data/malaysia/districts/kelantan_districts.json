@@ -1,0 +1,122 @@
+[
+  {
+    "id": "my-03-kota-bharu",
+    "name": "Kota Bharu",
+    "state": "kelantan",
+    "district": "Kota Bharu",
+    "latitude": 6.1254,
+    "longitude": 102.2381,
+    "metadata": {
+      "type": "district",
+      "notes": "State capital and primary heritage, food, and market district."
+    }
+  },
+  {
+    "id": "my-03-pasir-mas",
+    "name": "Pasir Mas",
+    "state": "kelantan",
+    "district": "Pasir Mas",
+    "latitude": 6.0494,
+    "longitude": 102.1399,
+    "metadata": {
+      "type": "district",
+      "notes": "Northern Kelantan district near the Malaysia-Thailand border corridor."
+    }
+  },
+  {
+    "id": "my-03-tumpat",
+    "name": "Tumpat",
+    "state": "kelantan",
+    "district": "Tumpat",
+    "latitude": 6.1978,
+    "longitude": 102.1692,
+    "metadata": {
+      "type": "district",
+      "notes": "Coastal and border district known for temples, rail access, and local villages."
+    }
+  },
+  {
+    "id": "my-03-bachok",
+    "name": "Bachok",
+    "state": "kelantan",
+    "district": "Bachok",
+    "latitude": 6.0669,
+    "longitude": 102.3986,
+    "metadata": {
+      "type": "district",
+      "notes": "Coastal district with beach tourism and local food routes."
+    }
+  },
+  {
+    "id": "my-03-pasir-puteh",
+    "name": "Pasir Puteh",
+    "state": "kelantan",
+    "district": "Pasir Puteh",
+    "latitude": 5.8369,
+    "longitude": 102.4072,
+    "metadata": {
+      "type": "district",
+      "notes": "Southern coastal gateway district near Terengganu."
+    }
+  },
+  {
+    "id": "my-03-machang",
+    "name": "Machang",
+    "state": "kelantan",
+    "district": "Machang",
+    "latitude": 5.7642,
+    "longitude": 102.2148,
+    "metadata": {
+      "type": "district",
+      "notes": "Inland district connecting Kota Bharu with Kuala Krai and Gua Musang routes."
+    }
+  },
+  {
+    "id": "my-03-tanah-merah",
+    "name": "Tanah Merah",
+    "state": "kelantan",
+    "district": "Tanah Merah",
+    "latitude": 5.8105,
+    "longitude": 102.1507,
+    "metadata": {
+      "type": "district",
+      "notes": "Inland district with local town services and road connections."
+    }
+  },
+  {
+    "id": "my-03-kuala-krai",
+    "name": "Kuala Krai",
+    "state": "kelantan",
+    "district": "Kuala Krai",
+    "latitude": 5.5323,
+    "longitude": 102.1998,
+    "metadata": {
+      "type": "district",
+      "notes": "Riverine inland district and route toward southern Kelantan."
+    }
+  },
+  {
+    "id": "my-03-gua-musang",
+    "name": "Gua Musang",
+    "state": "kelantan",
+    "district": "Gua Musang",
+    "latitude": 4.8844,
+    "longitude": 101.9686,
+    "metadata": {
+      "type": "district",
+      "notes": "Southern Kelantan district with nature, rail, and highland access routes."
+    }
+  },
+  {
+    "id": "my-03-jeli",
+    "name": "Jeli",
+    "state": "kelantan",
+    "district": "Jeli",
+    "latitude": 5.7005,
+    "longitude": 101.8438,
+    "metadata": {
+      "type": "district",
+      "notes": "Western Kelantan district near the Perak and Thailand border routes."
+    }
+  }
+]

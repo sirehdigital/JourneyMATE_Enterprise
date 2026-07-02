@@ -1,0 +1,15 @@
+{
+  "id": "my-03",
+  "name": "Kelantan",
+  "state": "kelantan",
+  "district": "",
+  "latitude": 6.1254,
+  "longitude": 102.2381,
+  "metadata": {
+    "country": "Malaysia",
+    "capital": "Kota Bharu",
+    "region": "East Coast Malaysia",
+    "datasetVersion": "1.0",
+    "categories": ["culture", "heritage", "food", "beach", "border-town"]
+  }
+}

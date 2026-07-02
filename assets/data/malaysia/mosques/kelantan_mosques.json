@@ -1,0 +1,28 @@
+[
+  {
+    "id": "my-03-mosque-muhammadi",
+    "name": "Masjid Muhammadi",
+    "state": "kelantan",
+    "district": "Kota Bharu",
+    "latitude": 6.1329,
+    "longitude": 102.2377,
+    "metadata": {
+      "type": "mosque",
+      "categories": ["religious", "heritage", "architecture"],
+      "notes": "Prominent mosque in Kota Bharu's heritage and civic centre."
+    }
+  },
+  {
+    "id": "my-03-mosque-beijing-rantau-panjang",
+    "name": "Masjid Beijing Rantau Panjang",
+    "state": "kelantan",
+    "district": "Pasir Mas",
+    "latitude": 6.0191,
+    "longitude": 101.9739,
+    "metadata": {
+      "type": "mosque",
+      "categories": ["religious", "architecture", "border-town"],
+      "notes": "Mosque in Rantau Panjang noted for Chinese-influenced architectural styling."
+    }
+  }
+]

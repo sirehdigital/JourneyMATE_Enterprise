@@ -1,0 +1,41 @@
+[
+  {
+    "id": "my-03-food-kopitiam-kita",
+    "name": "Kopitiam Kita",
+    "state": "kelantan",
+    "district": "Kota Bharu",
+    "latitude": 6.1189,
+    "longitude": 102.2436,
+    "metadata": {
+      "type": "restaurant",
+      "cuisine": ["Kelantanese", "breakfast", "kopitiam"],
+      "notes": "Popular Kota Bharu breakfast spot known for local dishes and casual kopitiam service."
+    }
+  },
+  {
+    "id": "my-03-food-nasi-ulam-cikgu",
+    "name": "Nasi Ulam Cikgu",
+    "state": "kelantan",
+    "district": "Kota Bharu",
+    "latitude": 6.1185,
+    "longitude": 102.2509,
+    "metadata": {
+      "type": "restaurant",
+      "cuisine": ["Kelantanese", "nasi-ulam", "local-lunch"],
+      "notes": "Local dining stop associated with nasi ulam and traditional Kelantanese side dishes."
+    }
+  },
+  {
+    "id": "my-03-food-yati-ayam-percik",
+    "name": "Yati Ayam Percik",
+    "state": "kelantan",
+    "district": "Kota Bharu",
+    "latitude": 6.129,
+    "longitude": 102.2397,
+    "metadata": {
+      "type": "restaurant",
+      "cuisine": ["Kelantanese", "ayam-percik", "local-dinner"],
+      "notes": "Known local stop for Kelantan-style ayam percik and traditional dishes."
+    }
+  }
+]

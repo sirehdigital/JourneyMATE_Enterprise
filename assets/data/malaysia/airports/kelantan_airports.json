@@ -1,0 +1,16 @@
+[
+  {
+    "id": "my-03-airport-sultan-ismail-petra",
+    "name": "Sultan Ismail Petra Airport",
+    "state": "kelantan",
+    "district": "Kota Bharu",
+    "latitude": 6.1669,
+    "longitude": 102.293,
+    "metadata": {
+      "type": "airport",
+      "iata": "KBR",
+      "icao": "WMKC",
+      "notes": "Main airport serving Kota Bharu and Kelantan."
+    }
+  }
+]

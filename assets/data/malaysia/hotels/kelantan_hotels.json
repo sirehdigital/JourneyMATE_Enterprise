@@ -1,0 +1,54 @@
+[
+  {
+    "id": "my-03-hotel-perdana-kota-bharu",
+    "name": "Hotel Perdana Kota Bharu",
+    "state": "kelantan",
+    "district": "Kota Bharu",
+    "latitude": 6.1243,
+    "longitude": 102.2432,
+    "metadata": {
+      "type": "hotel",
+      "area": "Kota Bharu city centre",
+      "notes": "Established city hotel commonly used by business and leisure travellers."
+    }
+  },
+  {
+    "id": "my-03-hotel-h-elite-design",
+    "name": "H Elite Design Hotel",
+    "state": "kelantan",
+    "district": "Kota Bharu",
+    "latitude": 6.0807,
+    "longitude": 102.2476,
+    "metadata": {
+      "type": "hotel",
+      "area": "Wakaf Che Yeh corridor",
+      "notes": "Modern hotel option along the southern Kota Bharu urban corridor."
+    }
+  },
+  {
+    "id": "my-03-hotel-renai-kota-bharu",
+    "name": "Renai Hotel Kota Bharu",
+    "state": "kelantan",
+    "district": "Kota Bharu",
+    "latitude": 6.1071,
+    "longitude": 102.2465,
+    "metadata": {
+      "type": "hotel",
+      "area": "Kota Bharu",
+      "notes": "Urban hotel option suitable for city access and business travel."
+    }
+  },
+  {
+    "id": "my-03-hotel-grand-riverview",
+    "name": "Grand Riverview Hotel",
+    "state": "kelantan",
+    "district": "Kota Bharu",
+    "latitude": 6.1324,
+    "longitude": 102.2422,
+    "metadata": {
+      "type": "hotel",
+      "area": "Kota Bharu riverfront",
+      "notes": "Riverfront city hotel near Kota Bharu heritage and market areas."
+    }
+  }
+]

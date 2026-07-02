@@ -1,0 +1,28 @@
+[
+  {
+    "id": "my-03-transport-kota-bharu-bus-terminal",
+    "name": "Kota Bharu Bus Terminal",
+    "state": "kelantan",
+    "district": "Kota Bharu",
+    "latitude": 6.1292,
+    "longitude": 102.2387,
+    "metadata": {
+      "type": "bus-terminal",
+      "mode": "bus",
+      "notes": "Central bus access point for Kota Bharu city travel and inter-district movement."
+    }
+  },
+  {
+    "id": "my-03-transport-wakaf-bharu-ktm",
+    "name": "Wakaf Bharu KTM Station",
+    "state": "kelantan",
+    "district": "Tumpat",
+    "latitude": 6.119,
+    "longitude": 102.1965,
+    "metadata": {
+      "type": "railway-station",
+      "mode": "rail",
+      "notes": "Rail station commonly used for access between Kota Bharu area and KTM East Coast Line services."
+    }
+  }
+]
