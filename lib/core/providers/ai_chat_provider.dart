@@ -506,6 +506,7 @@ Please retry shortly or check the AI Brain configuration.
       explanationSummary: _safeSection(response.explanationSummary),
       confidence: response.confidence,
       generatedAt: response.generatedAt,
+      metadata: response.metadata,
     );
     final normalizedMarkdown = _normalizeHybridMarkdown(markdown);
     final cardEngine = _ref.read(aiCardEngineProvider);
@@ -517,6 +518,7 @@ Please retry shortly or check the AI Brain configuration.
       reasoningSummary: response.reasoningSummary,
       confidence: response.confidence,
       metadata: <String, dynamic>{
+        ...response.metadata,
         'source': 'ai_chat_provider',
         'responseGeneratedAt': response.generatedAt.toIso8601String(),
         'travelStyle': request.travelStyle,
@@ -528,6 +530,7 @@ Please retry shortly or check the AI Brain configuration.
       markdown: normalizedMarkdown,
       cards: cards,
       metadata: <String, dynamic>{
+        ...response.metadata,
         'source': 'ai_chat_provider',
         'cardCount': cards.length,
         'generatedAt': response.generatedAt.toIso8601String(),

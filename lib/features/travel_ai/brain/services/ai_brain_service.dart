@@ -129,14 +129,14 @@ class AIBrainService {
     final effectiveContext = context ?? buildContext(request);
 
     final recommendationSummary = _buildRecommendationSummary(request);
-    final travelPlanSummary = _buildTravelPlanSummary(request);
+    final travelPlanResponse = _buildTravelPlanResponse(request);
     final reasoningSummary = _buildReasoningSummary(request, effectiveContext);
     final explanationSummary = _buildExplanationSummary(request);
     final confidence = _calculateConfidence(request, effectiveStatus);
 
     return AIBrainResponse(
       recommendationSummary: recommendationSummary,
-      travelPlanSummary: travelPlanSummary,
+      travelPlanSummary: travelPlanResponse.summary,
       reasoningSummary: reasoningSummary,
       explanationSummary: explanationSummary,
       confidence: confidence,
@@ -144,6 +144,9 @@ class AIBrainService {
       metadata: <String, dynamic>{
         'status': effectiveStatus.toMap(),
         'destination': request.destination,
+        'durationDays': request.durationDays,
+        'travelPlanSummary': travelPlanResponse.summary,
+        ...travelPlanResponse.metadata,
         if (_diagnostics.isNotEmpty) 'diagnostics': _diagnosticsSnapshot(),
       },
     );
@@ -183,10 +186,13 @@ class AIBrainService {
     }
   }
 
-  String _buildTravelPlanSummary(AIBrainRequest request) {
+  _TravelPlanResponse _buildTravelPlanResponse(AIBrainRequest request) {
     try {
       if (_plannerEngine == null) {
-        return 'Local planner ready.';
+        return const _TravelPlanResponse(
+          summary: 'Local planner ready.',
+          metadata: <String, dynamic>{'plannerReady': false},
+        );
       }
       final planRequest = TravelPlanRequest(
         destination: request.destination,
@@ -198,11 +204,39 @@ class AIBrainService {
         preferences: request.preferences,
       );
       final plan = _plannerEngine!.createTravelPlan(planRequest);
-      return 'Local planner produced ${plan.summary.totalActivities} '
+      final planMetadata = _normalizeMetadata(plan.metadata);
+      final itineraryTimeline = planMetadata['itineraryTimeline'];
+      final summary = 'Local planner produced ${plan.summary.totalActivities} '
           'activities for ${request.destination}.';
+
+      return _TravelPlanResponse(
+        summary: summary,
+        metadata: <String, dynamic>{
+          'travelPlanSummary': summary,
+          'destination': request.destination,
+          'durationDays': request.durationDays,
+          'itineraryTimeline': itineraryTimeline,
+          'travelPlan': <String, dynamic>{
+            'summary': plan.summary.toMap(),
+            'metadata': planMetadata,
+          },
+          'plannerDebug': <String, dynamic>{
+            'hasItineraryTimeline': itineraryTimeline != null,
+            'totalActivities': plan.summary.totalActivities,
+          },
+        },
+      );
     } catch (error, stackTrace) {
       _recordRecoverableError('buildTravelPlanSummary', error, stackTrace);
-      return 'Local planner ready.';
+      return _TravelPlanResponse(
+        summary: 'Local planner ready.',
+        metadata: <String, dynamic>{
+          'plannerReady': false,
+          'plannerDebug': <String, dynamic>{
+            'error': _errorSummary(error),
+          },
+        },
+      );
     }
   }
 
@@ -289,4 +323,24 @@ class AIBrainService {
     final message = error.toString().trim();
     return message.isEmpty ? error.runtimeType.toString() : message;
   }
+
+  Map<String, dynamic> _normalizeMetadata(dynamic value) {
+    if (value is Map) {
+      return value.map<String, dynamic>(
+        (dynamic key, dynamic entry) =>
+            MapEntry<String, dynamic>(key.toString(), entry),
+      );
+    }
+    return <String, dynamic>{};
+  }
+}
+
+class _TravelPlanResponse {
+  const _TravelPlanResponse({
+    required this.summary,
+    required this.metadata,
+  });
+
+  final String summary;
+  final Map<String, dynamic> metadata;
 }

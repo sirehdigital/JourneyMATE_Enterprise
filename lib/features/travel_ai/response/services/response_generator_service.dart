@@ -535,10 +535,10 @@ class ResponseGeneratorService {
           'metadata',
           'itineraryTimeline',
         ]),
-        _nestedValue(
-          metadata,
-          <String>['travelPlanMetadata', 'itineraryTimeline'],
-        ),
+        _nestedValue(metadata, <String>[
+          'travelPlanMetadata',
+          'itineraryTimeline',
+        ]),
       ]),
     );
   }
