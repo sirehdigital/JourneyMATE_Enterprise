@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/travel_ai/brain/models/ai_brain_request.dart';
 import '../../features/travel_ai/brain/models/ai_brain_response.dart';
 import '../../features/travel_ai/brain/providers/ai_brain_provider.dart';
+import '../../features/travel_ai/cards/models/card_response.dart';
+import '../../features/travel_ai/cards/providers/ai_card_provider.dart';
 import '../../features/travel_ai/response/providers/response_generator_provider.dart';
 import '../models/ai_message.dart';
 import '../services/openai_service.dart';
@@ -87,6 +89,8 @@ final aiChatStatusProvider =
     StateNotifierProvider<AIChatStatusNotifier, AIChatStatus>(
       (ref) => AIChatStatusNotifier(),
     );
+
+final aiCardResponseProvider = StateProvider<CardResponse?>((ref) => null);
 
 class AIChatController extends StateNotifier<List<AIMessage>> {
   AIChatController(this._ref) : super(_initialMessages);
@@ -199,7 +203,8 @@ class AIChatController extends StateNotifier<List<AIMessage>> {
     controller.setThinking();
 
     try {
-      final localMarkdown = _buildAIBrainMarkdown(prompt);
+      final localCardResponse = _buildAIBrainCardResponse(prompt);
+      final localMarkdown = localCardResponse.markdown;
       if (!OpenAIService.isConfigured) {
         _appendAIMessage(localMarkdown);
         return;
@@ -249,7 +254,8 @@ class AIChatController extends StateNotifier<List<AIMessage>> {
     _addPendingAIPlaceholder();
 
     try {
-      final localMarkdown = _buildAIBrainMarkdown(prompt);
+      final localCardResponse = _buildAIBrainCardResponse(prompt);
+      final localMarkdown = localCardResponse.markdown;
       if (!OpenAIService.isConfigured) {
         _replacePendingAIMessage(localMarkdown);
         _pendingAIMessageIndex = null;
@@ -421,14 +427,26 @@ class AIChatController extends StateNotifier<List<AIMessage>> {
   }
 
   String _buildAIBrainMarkdown(String prompt, {String? fallbackError}) {
+    return _buildAIBrainCardResponse(prompt, fallbackError: fallbackError)
+        .markdown;
+  }
+
+  CardResponse _buildAIBrainCardResponse(
+    String prompt, {
+    String? fallbackError,
+  }) {
     try {
       final engine = _ref.read(aiBrainEngineProvider);
       final request = _buildAIBrainRequest(prompt);
       final response = engine.execute(request);
-      return _formatAIBrainResponse(response);
+      final cardResponse = _formatAIBrainResponse(response, request);
+      _ref.read(aiCardResponseProvider.notifier).state = cardResponse;
+      return cardResponse;
     } catch (exception) {
       final errorMessage = fallbackError ?? _formatStreamError(exception);
-      return '''
+      final cardResponse = CardResponse(
+        markdown:
+            '''
 # JourneyMATE AI
 
 ## Recommendation
@@ -445,7 +463,15 @@ Please retry shortly or check the AI Brain configuration.
 
 ## Confidence
 0%
-''';
+''',
+        metadata: <String, dynamic>{
+          'source': 'ai_chat_provider',
+          'safeFallback': true,
+          'errorMessage': errorMessage,
+        },
+      );
+      _ref.read(aiCardResponseProvider.notifier).state = cardResponse;
+      return cardResponse;
     }
   }
 
@@ -465,7 +491,10 @@ Please retry shortly or check the AI Brain configuration.
     );
   }
 
-  String _formatAIBrainResponse(AIBrainResponse response) {
+  CardResponse _formatAIBrainResponse(
+    AIBrainResponse response,
+    AIBrainRequest request,
+  ) {
     final generator = _ref.read(responseGeneratorEngineProvider);
     final markdown = generator.generateMarkdown(
       title: 'JourneyMATE AI',
@@ -478,7 +507,39 @@ Please retry shortly or check the AI Brain configuration.
       confidence: response.confidence,
       generatedAt: response.generatedAt,
     );
-    return _normalizeHybridMarkdown(markdown);
+    final normalizedMarkdown = _normalizeHybridMarkdown(markdown);
+    final cardEngine = _ref.read(aiCardEngineProvider);
+    final cards = cardEngine.generateCards(
+      destination: request.destination,
+      hotelSummary: response.recommendationSummary,
+      budgetSummary: _buildBudgetSummary(request),
+      itinerarySummary: response.travelPlanSummary,
+      reasoningSummary: response.reasoningSummary,
+      confidence: response.confidence,
+      metadata: <String, dynamic>{
+        'source': 'ai_chat_provider',
+        'responseGeneratedAt': response.generatedAt.toIso8601String(),
+        'travelStyle': request.travelStyle,
+        'transportMode': request.transportMode,
+        'travellers': request.travellers,
+      },
+    );
+    return CardResponse(
+      markdown: normalizedMarkdown,
+      cards: cards,
+      metadata: <String, dynamic>{
+        'source': 'ai_chat_provider',
+        'cardCount': cards.length,
+        'generatedAt': response.generatedAt.toIso8601String(),
+      },
+    );
+  }
+
+  String _buildBudgetSummary(AIBrainRequest request) {
+    if (request.budget <= 0) {
+      return '';
+    }
+    return 'Estimated user budget: RM${request.budget.toStringAsFixed(0)}.';
   }
 
   String _safeSection(String value) {
